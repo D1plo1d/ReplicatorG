@@ -1,0 +1,1342 @@
+/*
+ CncOverNetDriver.java
+
+ This is a driver to control a machine that uses the CncOverNet TCP/IP interface.
+
+ Part of the ReplicatorG project - http://www.replicat.org
+ Copyright (c) 2010 Rob Gilson
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/* Additional: Sorry this is copy pasta - I fear some day, that some poor bastard 
+ * will need to fix that but it looks like that would involve a far greater 
+ * rewrite of ReplicatorG drivers then I currently have time to do.
+ * 	- Rob
+ */
+
+package replicatorg.drivers.cncOverNet;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Vector;
+import java.util.logging.Level;
+
+import javax.vecmath.Point3d;
+
+import org.w3c.dom.Node;
+
+import replicatorg.app.Base;
+import replicatorg.drivers.BadFirmwareVersionException;
+import replicatorg.drivers.NetworkDriver;
+import replicatorg.drivers.OnboardParameters;
+import replicatorg.drivers.SDCardCapture;
+import replicatorg.drivers.PenPlotter;
+import replicatorg.drivers.SerialDriver;
+import replicatorg.drivers.Version;
+import replicatorg.machine.model.Axis;
+import replicatorg.machine.model.ToolModel;
+import replicatorg.uploader.FirmwareUploader;
+
+public class CncOverNetDriver extends NetworkDriver
+	implements OnboardParameters, SDCardCapture, PenPlotter
+{
+	Version toolVersion = new Version(0,0);
+	
+	public CncOverNetDriver() {
+		super();
+
+		// init our variables.
+		setInitialized(false);
+	}
+
+	public void loadXML(Node xml) {
+		super.loadXML(xml);
+
+	}
+
+	public void initialize() {
+		if (isInitialized()) return;
+
+		// Assert: serial port present.
+		assert socket != null : "No socket connection.";
+
+		//TODO: get firmware name and version!
+		String firmwareName = "BS//test";
+		int firmwareVersion = 0;
+		
+		if (firmwareName !=null)
+		{
+			// it worked! great - now let's do some setup
+			invalidatePosition();
+			super.initialize();
+		}
+		else
+		{
+			Base.logger.log(Level.INFO,"Unable to connect to firmware.");
+			// Dispose of driver to free up any resources
+			dispose();
+		}
+	}
+
+	/**
+	 * TODO:Sends the command over the serial connection and retrieves a result.
+	 */
+/*	protected Object runCommand(Object command) {
+
+	}*/
+
+	static boolean isNotifiedFinishedFeature = false;
+
+	/** TODO: are we finished with the last command? */
+	public boolean isFinished() {
+		
+		// TODO: implement
+
+		return true;
+	}
+
+	public void dispose() {
+		super.dispose();
+	}
+
+	/***************************************************************************
+	 * commands used internally by CNC Over Net driver
+	 **************************************************************************/
+
+	
+	/***************************************************************************
+	 * commands for interfacing with the driver directly
+	 **************************************************************************/
+
+	public void queuePoint(Point3d p) {
+		Base.logger.log(Level.FINE,"Queued point " + p);
+
+		// is this point even step-worthy?
+		Point3d deltaSteps = getAbsDeltaSteps(getCurrentPosition(), p);
+		double masterSteps = getLongestLength(deltaSteps);
+
+		// okay, we need at least one step.
+		if (masterSteps > 0.0) {
+			// where we going?
+			Point3d steps = machine.mmToSteps(p);
+			
+			Point3d delta = getDelta(p);
+			double feedrate = getSafeFeedrate(delta);
+			
+			// how fast are we doing it?
+			long micros = convertFeedrateToMicros(getCurrentPosition(),
+					p, feedrate);
+
+			//System.err.println("Steps :"+steps.toString()+" micros "+Long.toString(micros));
+
+			// okay, send it off!
+			queueAbsolutePoint(steps, micros);
+
+			super.queuePoint(p);
+		}
+	}
+
+
+	private void queueAbsolutePoint(Point3d steps, long micros) {
+		
+		// TODO: implement
+
+/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.QUEUE_POINT_ABS.getCode());
+
+		if (Base.logger.isLoggable(Level.FINE)) {
+			Base.logger.log(Level.FINE,"Queued absolute point " + steps + " at "
+					+ Long.toString(micros) + " usec.");
+		}
+
+		// just add them in now.
+		pb.add32((int) steps.x);
+		pb.add32((int) steps.y);
+		pb.add32((int) steps.z);
+		pb.add32((int) micros);
+
+		runCommand(pb.getPacket());
+*/
+	}
+
+	public void setCurrentPosition(Point3d p) {
+		
+		// TODO: implement
+
+/*
+ * //		System.err.println("   SCP: "+p.toString()+ " (current "+getCurrentPosition().toString()+")");
+ */
+//		if (super.getCurrentPosition().equals(p)) return;
+//		System.err.println("COMMIT: "+p.toString()+ " (current "+getCurrentPosition().toString()+")");
+/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.SET_POSITION.getCode());
+
+		Point3d steps = machine.mmToSteps(p);
+		pb.add32((long) steps.x);
+		pb.add32((long) steps.y);
+		pb.add32((long) steps.z);
+
+		Base.logger.log(Level.FINE,"Set current position to " + p + " (" + steps
+					+ ")");
+
+		runCommand(pb.getPacket());
+
+		super.setCurrentPosition(p);
+*/
+	}
+
+	public void homeAxes(EnumSet<Axis> axes, boolean positive, double feedrate) {
+		
+		// TODO: implement
+
+/*		Base.logger.log(Level.FINE,"Homing axes "+axes.toString());
+		byte flags = 0x00;
+
+		invalidatePosition();
+
+		Point3d maxFeedrates = machine.getMaximumFeedrates();
+
+		if (feedrate <= 0) {
+			// figure out our fastest feedrate.
+			feedrate = Math.max(maxFeedrates.x, maxFeedrates.y);
+			feedrate = Math.max(maxFeedrates.z, feedrate);
+		}
+		
+		Point3d target = new Point3d();
+		
+		if (axes.contains(Axis.X)) {
+			flags += 1;
+			feedrate = Math.min(feedrate, maxFeedrates.x);
+			target.x = 1; // just to give us feedrate info.
+		}
+		if (axes.contains(Axis.Y)) {
+			flags += 2;
+			feedrate = Math.min(feedrate, maxFeedrates.y);
+			target.y = 1; // just to give us feedrate info.
+		}
+		if (axes.contains(Axis.Z)) {
+			flags += 4;
+			feedrate = Math.min(feedrate, maxFeedrates.z);
+			target.z = 1; // just to give us feedrate info.
+		}
+		
+		// calculate ticks
+		long micros = convertFeedrateToMicros(new Point3d(), target, feedrate);
+		// send it!
+		int code = positive?
+				MotherboardCommandCode.FIND_AXES_MAXIMUM.getCode():
+				MotherboardCommandCode.FIND_AXES_MINIMUM.getCode();
+		PacketBuilder pb = new PacketBuilder(code);
+		pb.add8(flags);
+		pb.add32((int) micros);
+		pb.add16(20); // default to 20 seconds
+		runCommand(pb.getPacket());
+*/
+	}
+		
+
+	public void delay(long millis) {
+		
+		// TODO: implement
+
+/*		if (Base.logger.isLoggable(Level.FINER)) {
+			Base.logger.log(Level.FINER,"Delaying " + millis + " millis.");
+		}
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.DELAY.getCode());
+		pb.add32(millis);
+		runCommand(pb.getPacket());
+*/
+	}
+
+	public void openClamp(int clampIndex) {
+		// TODO: throw some sort of unsupported exception.
+		super.openClamp(clampIndex);
+	}
+
+	public void closeClamp(int clampIndex) {
+		// TODO: throw some sort of unsupported exception.
+		super.closeClamp(clampIndex);
+	}
+
+	public void enableDrives() {
+		
+		// TODO: implement
+/*
+		// Command RMB to enable its steppers. Note that they are
+		// already automagically enabled by most commands and need
+		// not be explicitly enabled.
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.ENABLE_AXES.getCode());
+		pb.add8(0x87); // enable x,y,z
+		runCommand(pb.getPacket());
+		super.enableDrives();
+*/
+	}
+
+	public void disableDrives() {
+		
+		// TODO: implement
+
+		// Command RMB to disable its steppers.
+/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.ENABLE_AXES.getCode());
+		pb.add8(0x07); // disable x,y,z
+		runCommand(pb.getPacket());
+		super.disableDrives();
+*/
+	}
+
+	public void changeGearRatio(int ratioIndex) {
+		// TODO: throw some sort of unsupported exception.
+		super.changeGearRatio(ratioIndex);
+	}
+
+	public void requestToolChange(int toolIndex) {
+		
+		// TODO: implement
+
+/*		selectTool(toolIndex);
+
+		Base.logger.log(Level.FINE,"Waiting for tool #" + toolIndex);
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.WAIT_FOR_TOOL.getCode());
+		pb.add8((byte) toolIndex);
+		pb.add16(100); // delay between master -> slave pings (millis)
+		pb.add16(120); // timeout before continuing (seconds)
+		runCommand(pb.getPacket());
+*/
+	}
+
+	public void selectTool(int toolIndex) {
+		
+		// TODO: implement
+
+/*		Base.logger.log(Level.FINE,"Selecting tool #" + toolIndex);
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.CHANGE_TOOL.getCode());
+		pb.add8((byte) toolIndex);
+		runCommand(pb.getPacket());
+
+		super.selectTool(toolIndex);
+*/
+	}
+
+	/***************************************************************************
+	 * Motor interface functions
+	 **************************************************************************/
+	public void setMotorRPM(double rpm) {
+		
+		// TODO: implement
+
+/*		// convert RPM into microseconds and then send.
+		long microseconds = (int) Math.round(60.0 * 1000000.0 / rpm); // no
+		// unsigned
+		// ints?!?
+		// microseconds = Math.min(microseconds, 2^32-1); // limit to uint32.
+
+		Base.logger.log(Level.FINE,"Setting motor 1 speed to " + rpm + " RPM ("
+					+ microseconds + " microseconds)");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_MOTOR_1_RPM.getCode());
+		pb.add8((byte) 4); // length of payload.
+		pb.add32(microseconds);
+		runCommand(pb.getPacket());
+
+		super.setMotorRPM(rpm);
+*/
+	}
+
+	public void setMotorSpeedPWM(int pwm) {
+		
+		// TODO: implement
+
+/*		Base.logger.log(Level.FINE,"Setting motor 1 speed to " + pwm + " PWM");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_MOTOR_1_PWM.getCode());
+		pb.add8((byte) 1); // length of payload.
+		pb.add8((byte) pwm);
+		runCommand(pb.getPacket());
+
+		super.setMotorSpeedPWM(pwm);
+		*/
+	}
+
+	public void enableMotor() {
+		
+		// TODO: implement
+
+/*		// our flag variable starts with motors enabled.
+		byte flags = 1;
+
+		// bit 1 determines direction...
+		if (machine.currentTool().getMotorDirection() == ToolModel.MOTOR_CLOCKWISE)
+			flags += 2;
+
+		Base.logger.log(Level.FINE,"Toggling motor 1 w/ flags: "
+					+ Integer.toBinaryString(flags));
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.TOGGLE_MOTOR_1.getCode());
+		pb.add8((byte) 1); // payload length
+		pb.add8(flags);
+		runCommand(pb.getPacket());
+
+		super.enableMotor();
+		*/
+	}
+
+	public void disableMotor() {
+		
+		// TODO: implement
+/*
+		// bit 1 determines direction...
+		byte flags = 0;
+		if (machine.currentTool().getSpindleDirection() == ToolModel.MOTOR_CLOCKWISE)
+			flags += 2;
+
+		Base.logger.log(Level.FINE,"Disabling motor 1");
+
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.TOGGLE_MOTOR_1.getCode());
+		pb.add8((byte) 1); // payload length
+		pb.add8(flags);
+		runCommand(pb.getPacket());
+
+		super.disableMotor();
+*/
+	}
+
+	public int getMotorSpeedPWM() {
+		
+		// TODO: implement
+
+/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.GET_MOTOR_1_PWM.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+
+		// get it
+		int pwm = pr.get8();
+
+		Base.logger.log(Level.FINE,"Current motor 1 PWM: " + pwm);
+
+		// set it.
+		machine.currentTool().setMotorSpeedReadingPWM(pwm);
+
+		return pwm;
+		*/
+	}
+
+	public double getMotorSpeedRPM() {
+		
+		// TODO: implement
+
+/*
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.GET_MOTOR_1_RPM.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+
+		// convert back to RPM
+		long micros = pr.get32();
+		double rpm = (60.0 * 1000000.0 / micros);
+
+		Base.logger.log(Level.FINE,"Current motor 1 RPM: " + rpm + " (" + micros + ")");
+
+		// set it.
+		machine.currentTool().setMotorSpeedReadingRPM(rpm);
+
+		return rpm;
+		*/
+		
+		return 0.0;
+	}
+
+	/***************************************************************************
+	 * PenPlotter interface functions
+	 **************************************************************************/
+	//public void moveServo(int degree) {}
+
+	//public void enableServo() {}
+
+	//public void disableServo() {}
+
+	public void setServoPos(double degree) {
+		
+		Base.logger.log(Level.FINE,"Setting servo 1 position to " + degree + " degrees");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_SERVO_1_POS.getCode());
+		pb.add8((byte) 1); // length of payload.
+		pb.add8((byte) degree);
+		runCommand(pb.getPacket());
+
+		//super.setServoPos(degree);		
+	}
+
+	/***************************************************************************
+	 * Spindle interface functions
+	 **************************************************************************/
+	public void setSpindleRPM(double rpm) {
+		// convert RPM into microseconds and then send.
+		long microseconds = (int) Math.round(60 * 1000000 / rpm); // no
+		// unsigned
+		// ints?!?
+		microseconds = Math.min(microseconds, 2 ^ 32 - 1); // limit to uint32.
+
+		Base.logger.log(Level.FINE,"Setting motor 2 speed to " + rpm + " RPM ("
+					+ microseconds + " microseconds)");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_MOTOR_2_RPM.getCode());
+		pb.add8((byte) 4); // payload length
+		pb.add32(microseconds);
+		runCommand(pb.getPacket());
+
+		super.setSpindleRPM(rpm);
+	}
+
+	public void setSpindleSpeedPWM(int pwm) {
+		Base.logger.log(Level.FINE,"Setting motor 2 speed to " + pwm + " PWM");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_MOTOR_2_PWM.getCode());
+		pb.add8((byte) 1); // length of payload.
+		pb.add8((byte) pwm);
+		runCommand(pb.getPacket());
+
+		super.setMotorSpeedPWM(pwm);
+	}
+
+	public void enableSpindle() {
+		// our flag variable starts with spindles enabled.
+		byte flags = 1;
+
+		// bit 1 determines direction...
+		if (machine.currentTool().getSpindleDirection() == ToolModel.MOTOR_CLOCKWISE)
+			flags += 2;
+
+		Base.logger.log(Level.FINE,"Toggling motor 2 w/ flags: "
+					+ Integer.toBinaryString(flags));
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.TOGGLE_MOTOR_2.getCode());
+		pb.add8((byte) 1); // payload length
+		pb.add8(flags);
+		runCommand(pb.getPacket());
+
+		super.enableSpindle();
+	}
+
+	public void disableSpindle() {
+		// bit 1 determines direction...
+		byte flags = 0;
+		if (machine.currentTool().getSpindleDirection() == ToolModel.MOTOR_CLOCKWISE)
+			flags += 2;
+
+		Base.logger.log(Level.FINE,"Disabling motor 2");
+
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.TOGGLE_MOTOR_1.getCode());
+		pb.add8((byte) 1); // payload length
+		pb.add8(flags);
+		runCommand(pb.getPacket());
+
+		super.disableSpindle();
+	}
+
+	public double getSpindleSpeedRPM() {
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.GET_MOTOR_2_RPM.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+
+		// convert back to RPM
+		long micros = pr.get32();
+		double rpm = (60.0 * 1000000.0 / micros);
+
+		Base.logger.log(Level.FINE,"Current motor 2 RPM: " + rpm + " (" + micros
+					+ ")");
+
+		// set it.
+		machine.currentTool().setSpindleSpeedReadingRPM(rpm);
+
+		return rpm;
+	}
+
+	public int getSpindleSpeedPWM() {
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.GET_MOTOR_2_PWM.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+
+		// get it
+		int pwm = pr.get8();
+
+		Base.logger.log(Level.FINE,"Current motor 1 PWM: " + pwm);
+
+		// set it.
+		machine.currentTool().setSpindleSpeedReadingPWM(pwm);
+
+		return pwm;
+	}
+
+	/***************************************************************************
+	 * Temperature interface functions
+	 **************************************************************************/
+	public void setTemperature(double temperature) {
+		// constrain our temperature.
+		int temp = (int) Math.round(temperature);
+		temp = Math.min(temp, 65535);
+
+		Base.logger.log(Level.FINE,"Setting temperature to " + temp + "C");
+
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_TEMP.getCode());
+		pb.add8((byte) 2); // payload length
+		pb.add16(temp);
+		runCommand(pb.getPacket());
+
+		super.setTemperature(temperature);
+	}
+
+	public void readTemperature() {
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.GET_TEMP.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+		if (pr.isEmpty()) return;
+		int temp = pr.get16();
+		machine.currentTool().setCurrentTemperature(temp);
+
+		Base.logger.log(Level.FINE,"Current temperature: "
+					+ machine.currentTool().getCurrentTemperature() + "C");
+
+		super.readTemperature();
+	}
+
+	/***************************************************************************
+	 * Platform Temperature interface functions
+	 **************************************************************************/
+	public void setPlatformTemperature(double temperature) {
+		// constrain our temperature.
+		int temp = (int) Math.round(temperature);
+		temp = Math.min(temp, 65535);
+		
+		Base.logger.log(Level.FINE,"Setting platform temperature to " + temp + "C");
+		
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_PLATFORM_TEMP.getCode());
+		pb.add8((byte) 2); // payload length
+		pb.add16(temp);
+		runCommand(pb.getPacket());
+		
+		super.setPlatformTemperature(temperature);
+	}
+	
+	public void readPlatformTemperature() {
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.GET_PLATFORM_TEMP.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+		if (pr.isEmpty()) return;
+		int temp = pr.get16();
+		machine.currentTool().setPlatformCurrentTemperature(temp);
+		
+		Base.logger.log(Level.FINE,"Current platform temperature: "
+						+ machine.currentTool().getPlatformCurrentTemperature() + "C");
+		
+		super.readPlatformTemperature();
+	}
+
+	/***************************************************************************
+	 * Flood Coolant interface functions
+	 **************************************************************************/
+	public void enableFloodCoolant() {
+		// TODO: throw unsupported exception
+
+		super.enableFloodCoolant();
+	}
+
+	public void disableFloodCoolant() {
+		// TODO: throw unsupported exception
+
+		super.disableFloodCoolant();
+	}
+
+	/***************************************************************************
+	 * Mist Coolant interface functions
+	 **************************************************************************/
+	public void enableMistCoolant() {
+		// TODO: throw unsupported exception
+
+		super.enableMistCoolant();
+	}
+
+	public void disableMistCoolant() {
+		// TODO: throw unsupported exception
+
+		super.disableMistCoolant();
+	}
+
+	/***************************************************************************
+	 * Fan interface functions
+	 **************************************************************************/
+	public void enableFan() {
+		Base.logger.log(Level.FINE,"Enabling fan");
+		
+		//TODO: implement
+
+		super.enableFan();
+	}
+
+	public void disableFan() {
+		Base.logger.log(Level.FINE,"Disabling fan");
+		
+		//TODO: implement
+
+		super.disableFan();
+	}
+
+	/***************************************************************************
+	 * Valve interface functions
+	 **************************************************************************/
+	public void openValve() {
+		Base.logger.log(Level.FINE,"Opening valve");
+		
+		//TODO: implement
+
+		super.openValve();
+	}
+
+	public void closeValve() {
+		Base.logger.log(Level.FINE,"Closing valve");
+		
+		//TODO: implement
+
+		super.closeValve();
+	}
+
+	/***************************************************************************
+	 * Collet interface functions
+	 **************************************************************************/
+	public void openCollet() {
+		// TODO: throw unsupported exception.
+
+		super.openCollet();
+	}
+
+	public void closeCollet() {
+		// TODO: throw unsupported exception.
+
+		super.closeCollet();
+	}
+
+	/***************************************************************************
+	 * Pause/unpause functionality for asynchronous devices
+	 **************************************************************************/
+	public void pause() {
+		Base.logger.log(Level.FINE,"Sending asynch pause command");
+		
+		//TODO: implement
+	}
+
+	public void unpause() {
+		Base.logger.log(Level.FINE,"Sending asynch unpause command");
+		
+		//TODO: implement
+	}
+
+	/***************************************************************************
+	 * Various timer and math functions.
+	 **************************************************************************/
+
+	private Point3d getDeltaDistance(Point3d current, Point3d target) {
+		// calculate our deltas.
+		Point3d delta = new Point3d();
+		delta.x = target.x - current.x;
+		delta.y = target.y - current.y;
+		delta.z = target.z - current.z;
+
+		return delta;
+	}
+
+	@SuppressWarnings("unused")
+	private Point3d getDeltaSteps(Point3d current, Point3d target) {
+		return machine.mmToSteps(getDeltaDistance(current, target));
+	}
+
+	private Point3d getAbsDeltaDistance(Point3d current, Point3d target) {
+		// calculate our deltas.
+		Point3d delta = new Point3d();
+		delta.x = Math.abs(target.x - current.x);
+		delta.y = Math.abs(target.y - current.y);
+		delta.z = Math.abs(target.z - current.z);
+
+		return delta;
+	}
+
+	private Point3d getAbsDeltaSteps(Point3d current, Point3d target) {
+		return machine.mmToSteps(getAbsDeltaDistance(current, target));
+	}
+
+	/**
+	 * 
+	 * @param current
+	 * @param target
+	 * @param feedrate Feedrate in mm per minute
+	 * @return
+	 */
+	private long convertFeedrateToMicros(Point3d current, Point3d target,
+			double feedrate) {
+		Point3d deltaDistance = getAbsDeltaDistance(current, target);
+ 		Point3d deltaSteps = machine.mmToSteps(deltaDistance);
+		double masterSteps = getLongestLength(deltaSteps);
+		// how long is our line length?
+		double distance = deltaDistance.distance(new Point3d());
+		// distance is in mm
+		// feedrate is in mm/min
+		// distance / feedrate * 60,000,000 = move duration in microseconds
+		double micros = distance / feedrate * 60000000.0;
+		// micros / masterSteps = time between steps for master axis.
+		double step_delay = micros / masterSteps;
+		return (long) Math.round(step_delay);
+	}
+
+	private double getLongestLength(Point3d p) {
+		// find the dominant axis.
+		if (p.x > p.y) {
+			if (p.z > p.x)
+				return p.z;
+			else
+				return p.x;
+		} else {
+			if (p.z > p.y)
+				return p.z;
+			else
+				return p.y;
+		}
+	}
+
+	public String getDriverName() {
+		return "Sanguino3G";
+	}
+
+	/***************************************************************************
+	 * Stop and system state reset
+	 **************************************************************************/
+	public void stop() {
+		Base.logger.warning("Stop.");
+		
+		//TODO: implement
+
+		Thread.interrupted(); // Clear interrupted status
+		// invalidate position, force reconciliation.
+		invalidatePosition();
+	}
+
+	protected Point3d reconcilePosition() {
+		if (fileCaptureOstream != null) {
+			return new Point3d(0,0,0);
+		}
+		
+		//TODO: implement
+
+		// Useful quickie debugs
+//		System.err.println("Reconciling : "+machine.stepsToMM(steps).toString());
+//		return machine.stepsToMM(steps);
+		return new Point3d(0,0,0);
+	}
+
+	public void reset() {
+		Base.logger.info("Reset.");
+		
+		//TODO: implement
+
+		setInitialized(false);
+		initialize();
+	}
+
+	private boolean eepromChecked = false;
+	private static final int EEPROM_CHECK_LOW = 0x5A;
+	private static final int EEPROM_CHECK_HIGH = 0x78;
+	
+	final static class ECThermistorOffsets {
+		final private static int[] TABLE_OFFSETS = {
+			0x00f0,
+			0x0170
+		};
+
+		final private static int R0 = 0x00;
+		final private static int T0 = 0x04;
+		final private static int BETA = 0x08;
+		final private static int DATA = 0x10;
+		
+		public static int r0(int which) { return R0 + TABLE_OFFSETS[which]; }
+		public static int t0(int which) { return T0 + TABLE_OFFSETS[which]; }
+		public static int beta(int which) { return BETA + TABLE_OFFSETS[which]; }
+		public static int data(int which) { return DATA + TABLE_OFFSETS[which]; }
+	};	
+
+	final private static int MAX_MACHINE_NAME_LEN = 16;
+	public EnumSet<Axis> getInvertedParameters() {
+		
+		//TODO: implement
+/*		checkEEPROM();
+		byte[] b = readFromEEPROM(EEPROM_AXIS_INVERSION_OFFSET,1);
+		EnumSet<Axis> r = EnumSet.noneOf(Axis.class);
+		if ( (b[0] & (0x01 << 0)) != 0 ) r.add(Axis.X);
+		if ( (b[0] & (0x01 << 1)) != 0 ) r.add(Axis.Y);
+		if ( (b[0] & (0x01 << 2)) != 0 ) r.add(Axis.Z);
+		return r;*/
+		return EnumSet.noneOf(Axis.class);
+	}
+
+	public void setInvertedParameters(EnumSet<Axis> axes) {
+		byte b[] = new byte[1];
+		if (axes.contains(Axis.X)) b[0] = (byte)(b[0] | (0x01 << 0));
+		if (axes.contains(Axis.Y)) b[0] = (byte)(b[0] | (0x01 << 1));
+		if (axes.contains(Axis.Z)) b[0] = (byte)(b[0] | (0x01 << 2));
+		
+		//TODO: implement
+//		writeToEEPROM(EEPROM_AXIS_INVERSION_OFFSET,b);
+	}
+
+	public String getMachineName() {
+		
+		//TODO: implement
+		return "TEST//BS";
+	}
+
+	public void setMachineName(String machineName) {
+		
+		//TODO: implement
+	}
+	
+	public boolean hasFeatureOnboardParameters() {
+		return isInitialized();
+	}
+
+	public void createThermistorTable(int which, double r0, double t0, double beta) {
+		// Generate a thermistor table for r0 = 100K.
+		final int ADC_RANGE = 1024;
+		final int NUMTEMPS = 20;
+		byte table[] = new byte[NUMTEMPS*2*2];
+		class ThermistorConverter {
+			final double ZERO_C_IN_KELVIN = 273.15;
+			public double vadc,rs,vs,k,beta;
+			public ThermistorConverter(double r0, double t0C, double beta, double r2) {
+				this.beta = beta;
+				this.vs = this.vadc = 5.0;
+				final double t0K = ZERO_C_IN_KELVIN + t0C;
+				this.k = r0 * Math.exp(-beta / t0K);
+				this.rs = r2;		
+			}
+			public double temp(double adc) {
+				// Convert ADC reading into a temperature in Celsius
+				double v = adc * this.vadc / ADC_RANGE;
+				double r = this.rs * v / (this.vs - v);
+				return (this.beta / Math.log(r / this.k)) - ZERO_C_IN_KELVIN;
+			}
+		};
+		ThermistorConverter tc = new ThermistorConverter(r0,t0,beta,4700.0);
+		double adc = 1; // matching the python script's choices for now;
+		// we could do better with this distribution.
+		for (int i = 0; i < NUMTEMPS; i++) {
+			double temp = tc.temp(adc);
+			// extruder controller is little-endian
+			int tempi = (int)temp;
+			int adci = (int)adc;
+			Base.logger.fine("{ "+Integer.toString(adci) +"," +Integer.toString(tempi)+" }");
+			table[(2*2*i)+0] = (byte)(adci & 0xff); // ADC low
+			table[(2*2*i)+1] = (byte)(adci >> 8); // ADC high
+			table[(2*2*i)+2] = (byte)(tempi & 0xff); // temp low
+			table[(2*2*i)+3] = (byte)(tempi >> 8); // temp high
+			adc += (ADC_RANGE/(NUMTEMPS-1));
+		}
+		// Add indicators
+		byte eepromIndicator[] = new byte[2];
+		eepromIndicator[0] = EEPROM_CHECK_LOW;
+		eepromIndicator[1] = EEPROM_CHECK_HIGH;
+
+		
+		//TODO: implement
+/*		writeToToolEEPROM(0,eepromIndicator);
+
+		writeToToolEEPROM(ECThermistorOffsets.beta(which),intToLE((int)beta));
+		writeToToolEEPROM(ECThermistorOffsets.r0(which),intToLE((int)r0));
+		writeToToolEEPROM(ECThermistorOffsets.t0(which),intToLE((int)t0));
+		writeToToolEEPROM(ECThermistorOffsets.data(which),table);
+*/	}
+
+	private byte[] intToLE(int s, int sz) {
+		byte buf[] = new byte[sz];
+		for (int i = 0; i < sz; i++) {
+			buf[i] = (byte)(s & 0xff);
+			s = s >>> 8;
+		}
+		return buf;
+	}
+
+	private byte[] floatToLE(float f) {
+		byte buf[] = new byte[2];
+		double d = f;
+		double intPart = Math.floor(d);
+		double fracPart = Math.floor((d-intPart)*256.0);		
+		buf[0] = (byte)intPart;
+		buf[1] = (byte)fracPart;
+		return buf;
+	}
+
+	private byte[] intToLE(int s) {
+		return intToLE(s,4);
+	}
+
+	ResponseCode convertSDCode(int code) {
+		switch (code) {
+		case 0:
+			return ResponseCode.SUCCESS;
+		case 1:
+			return ResponseCode.FAIL_NO_CARD;
+		case 2:
+			return ResponseCode.FAIL_INIT;
+		case 3:
+			return ResponseCode.FAIL_PARTITION;
+		case 4:
+			return ResponseCode.FAIL_FS;
+		case 5:
+			return ResponseCode.FAIL_ROOT_DIR;
+		case 6:
+			return ResponseCode.FAIL_LOCKED;
+		case 7:
+			return ResponseCode.FAIL_NO_FILE;
+		default:
+		}
+		return ResponseCode.FAIL_GENERIC;
+	}
+
+	FileOutputStream fileCaptureOstream = null;
+	
+	public void beginFileCapture(String path) throws FileNotFoundException {
+		fileCaptureOstream = new FileOutputStream(new File(path));
+	}
+	
+	public void endFileCapture() throws IOException {
+		fileCaptureOstream.close();
+		fileCaptureOstream = null;
+	}
+	
+	public ResponseCode beginCapture(String filename) {
+		
+		// TODO: implement
+
+		/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.CAPTURE_TO_FILE.getCode());
+		for (byte b : filename.getBytes()) {
+			pb.add8(b);
+		}
+		pb.add8(0); // null-terminate string
+		PacketResponse pr = runCommand(pb.getPacket());
+		return convertSDCode(pr.get8());
+*/
+		return ResponseCode.SUCCESS;
+	}
+
+	public int endCapture() {
+		
+		// TODO: implement
+
+/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.END_CAPTURE.getCode());
+		PacketResponse pr = runCommand(pb.getPacket());
+		return pr.get32();*/
+		return 0;
+	}
+
+	public ResponseCode playback(String filename) {
+		
+		// TODO: implement
+
+/*		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.PLAYBACK_CAPTURE.getCode());
+		for (byte b : filename.getBytes()) {
+			pb.add8(b);
+		}
+		pb.add8(0); // null-terminate string
+		PacketResponse pr = runCommand(pb.getPacket());
+		return convertSDCode(pr.get8());
+		*/
+		
+		return ResponseCode.SUCCESS;
+	}
+
+	public boolean hasFeatureSDCardCapture() {
+		return isInitialized();
+	}
+	
+	public List<String> getFileList() {
+		
+		// TODO: implement
+
+		Vector<String> fileList = new Vector<String>();
+		return fileList;
+/*		boolean reset = true;
+		while (true) {
+			PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.NEXT_FILENAME.getCode());
+			pb.add8(reset?1:0);
+			reset = false;
+			PacketResponse pr = runCommand(pb.getPacket());
+			ResponseCode rc = convertSDCode(pr.get8());
+			if (rc != ResponseCode.SUCCESS) {
+				return fileList;
+			}
+			StringBuffer s = new StringBuffer();
+			while (true) {
+				char c = (char)pr.get8();
+				if (c == 0) break;
+				s.append(c);
+			}
+			if (s.length() == 0) break;
+			fileList.add(s.toString());
+		}
+		return fileList;
+		*/
+		
+	}
+
+	public int getBeta(int which) {
+		
+		// TODO: implement
+
+		return 0;
+/*		byte r[] = readFromToolEEPROM(ECThermistorOffsets.beta(which),4);
+		int val = 0;
+		for (int i = 0; i < 4; i++) {
+			val = val + (((int)r[i] & 0xff) << 8*i);
+		}
+		return val;
+*/
+	}
+
+	public int getR0(int which) {
+		
+		// TODO: implement
+
+		return 0;
+		/*
+		byte r[] = readFromToolEEPROM(ECThermistorOffsets.r0(which),4);
+		int val = 0;
+		for (int i = 0; i < 4; i++) {
+			val = val + (((int)r[i] & 0xff) << 8*i);
+		}
+		return val;
+		*/
+	}
+
+	public int getT0(int which) {
+		
+		// TODO: implement
+
+
+		return 0;
+		/*
+		byte r[] = readFromToolEEPROM(ECThermistorOffsets.t0(which),4);
+		int val = 0;
+		for (int i = 0; i < 4; i++) {
+			val = val + (((int)r[i] & 0xff) << 8*i);
+		}
+		return val;
+		*/
+	}
+
+	final static class ECBackoffOffsets {
+		/// Backoff stop time, in ms: 2 bytes
+		final static int STOP_MS = 0x0004;
+		/// Backoff reverse time, in ms: 2 bytes
+		final static int REVERSE_MS = 0x0006;
+		/// Backoff forward time, in ms: 2 bytes
+		final static int FORWARD_MS = 0x0008;
+		/// Backoff trigger time, in ms: 2 bytes
+		final static int TRIGGER_MS = 0x000A;
+	};
+	
+	final static class PIDOffsets {
+		final static int PID_EXTRUDER  = 0x000C;
+		final static int PID_HBP       = 0x0012;
+		final static int P_TERM_OFFSET = 0x0000;
+		final static int I_TERM_OFFSET = 0x0002;
+		final static int D_TERM_OFFSET = 0x0004;
+	};
+
+	private int byteToInt(byte b) { return ((int)b)&0xff; }
+	
+	public BackoffParameters getBackoffParameters() {
+		BackoffParameters bp = new BackoffParameters();
+		
+		// TODO: implement
+
+/*		bp.forwardMs = read16FromToolEEPROM(ECBackoffOffsets.FORWARD_MS, 300);
+		bp.stopMs = read16FromToolEEPROM(ECBackoffOffsets.STOP_MS, 5);
+		bp.reverseMs = read16FromToolEEPROM(ECBackoffOffsets.REVERSE_MS, 500);
+		bp.triggerMs = read16FromToolEEPROM(ECBackoffOffsets.TRIGGER_MS, 300);
+*/		return bp;
+	}
+	
+	public void setBackoffParameters(BackoffParameters bp) {
+		
+		// TODO: implement
+
+
+/*		writeToToolEEPROM(ECBackoffOffsets.FORWARD_MS,intToLE(bp.forwardMs,2));
+		writeToToolEEPROM(ECBackoffOffsets.STOP_MS,intToLE(bp.stopMs,2));
+		writeToToolEEPROM(ECBackoffOffsets.REVERSE_MS,intToLE(bp.reverseMs,2));
+		writeToToolEEPROM(ECBackoffOffsets.TRIGGER_MS,intToLE(bp.triggerMs,2));
+*/	}
+
+	public PIDParameters getPIDParameters(int which) {
+		PIDParameters pp = new PIDParameters();
+		
+		// TODO: implement
+
+/*		int offset = (which == 0)?PIDOffsets.PID_EXTRUDER:PIDOffsets.PID_HBP;
+		pp.p = readFloat16FromToolEEPROM(offset+PIDOffsets.P_TERM_OFFSET, 7.0f);
+		pp.i = readFloat16FromToolEEPROM(offset+PIDOffsets.I_TERM_OFFSET, 0.325f);
+		pp.d = readFloat16FromToolEEPROM(offset+PIDOffsets.D_TERM_OFFSET, 36.0f);
+*/
+		
+		return pp;
+	}
+	
+	public void setPIDParameters(int which, PIDParameters pp) {
+		
+		// TODO: implement
+
+/*		int offset = (which == 0)?PIDOffsets.PID_EXTRUDER:PIDOffsets.PID_HBP;
+		writeToToolEEPROM(offset+PIDOffsets.P_TERM_OFFSET,floatToLE(pp.p));
+		writeToToolEEPROM(offset+PIDOffsets.I_TERM_OFFSET,floatToLE(pp.i));
+		writeToToolEEPROM(offset+PIDOffsets.D_TERM_OFFSET,floatToLE(pp.d));
+*/	}
+
+	/** Reset to the factory state.  This ordinarily means writing 0xff over the
+	 * entire eeprom.
+	 */
+	public void resetToFactory() {
+		
+		// TODO: implement
+
+/*		byte eepromWipe[] = new byte[16];
+		Arrays.fill(eepromWipe,(byte)0xff);
+		for (int i = 0; i < 0x0200; i+=16) {
+			writeToEEPROM(i,eepromWipe);
+		}
+*/
+	}
+
+	public void resetToolToFactory() {
+		
+		// TODO: implement
+
+/*		byte eepromWipe[] = new byte[16];
+		Arrays.fill(eepromWipe,(byte)0xff);
+		for (int i = 0; i < 0x0200; i+=16) {
+			writeToToolEEPROM(i,eepromWipe);
+		}
+*/
+	}
+
+	public EndstopType getInvertedEndstops() {
+		
+		// TODO: implement
+
+/*
+		checkEEPROM();
+		byte[] b = readFromEEPROM(EEPROM_ENDSTOP_INVERSION_OFFSET,1);
+		return EndstopType.endstopTypeForValue(b[0]);
+*/
+		return EndstopType.NOT_PRESENT;
+	}
+
+	public void setInvertedEndstops(EndstopType endstops) {
+		
+		// TODO: implement
+
+/*		byte b[] = new byte[1];
+		b[0] = endstops.getValue();
+		writeToEEPROM(EEPROM_ENDSTOP_INVERSION_OFFSET,b);
+*/	}
+
+	public double getPlatformTemperatureSetting() {
+		
+		// TODO: implement
+
+/*		// This call was introduced in version 2.3
+		if (toolVersion.atLeast(new Version(2,3))) {
+			PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+			pb.add8((byte) machine.currentTool().getIndex());
+			pb.add8(ToolCommandCode.GET_PLATFORM_SP.getCode());
+			PacketResponse pr = runCommand(pb.getPacket());
+			int sp = pr.get16();
+			machine.currentTool().setPlatformTargetTemperature(sp);
+		}		
+		return super.getPlatformTemperatureSetting();
+		*/
+		
+		return 1337.0;
+	}
+
+	public double getTemperatureSetting() {
+		
+		// TODO: implement
+
+/*		// This call was introduced in version 2.3
+		if (toolVersion.atLeast(new Version(2,3))) {
+			PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_QUERY.getCode());
+			pb.add8((byte) machine.currentTool().getIndex());
+			pb.add8(ToolCommandCode.GET_SP.getCode());
+			PacketResponse pr = runCommand(pb.getPacket());
+			int sp = pr.get16();
+			machine.currentTool().setTargetTemperature(sp);
+		}
+		return super.getTemperatureSetting();
+		*/
+		return 3.14159;
+	}
+
+	public Version getToolVersion() { return toolVersion; }
+}

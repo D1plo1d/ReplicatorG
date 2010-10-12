@@ -116,6 +116,8 @@ import replicatorg.app.syntax.TextAreaPainter;
 import replicatorg.app.ui.modeling.PreviewPanel;
 import replicatorg.app.util.PythonUtils;
 import replicatorg.app.util.SwingPythonSelector;
+import replicatorg.drivers.ConnectableDriver;
+import replicatorg.drivers.ConnectableDriver.ConnectionException;
 import replicatorg.drivers.EstimationDriver;
 import replicatorg.drivers.OnboardParameters;
 import replicatorg.drivers.SDCardCapture;
@@ -2330,6 +2332,13 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 						return;
 					}
 				}
+			}
+		}
+		if (machine.driver instanceof ConnectableDriver) {
+			try {
+				((ConnectableDriver)machine.driver).connect();
+			} catch (ConnectionException e) {
+				Base.logger.log(Level.SEVERE, "Could not connect to machine.",e);
 			}
 		}
 	}
