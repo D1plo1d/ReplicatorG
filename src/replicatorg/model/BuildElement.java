@@ -1,5 +1,6 @@
 package replicatorg.model;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,21 @@ import javax.swing.undo.UndoManager;
 
 public abstract class BuildElement {
 	protected UndoManager undo = new UndoManager();
+	
+	/**
+	 * Factory method to get a Build Element from a file.
+	 */
+	public static BuildElement makeBuildElement(Build build, File file) {
+		if (file.getName().endsWith(".gcode")||file.getName().endsWith(".ngc"))
+		{
+			return new BuildCode(file.getName(), file);
+		}
+		else if (file.getName().endsWith(".stl"))
+		{
+			return new BuildModel(build, file);
+		}
+		else return null;
+	}
 	
 	/**
 	 * Every editable element has its own undo/redo manager.
@@ -50,7 +66,8 @@ public abstract class BuildElement {
 		
 	public enum Type {
 		MODEL("model"),
-		GCODE("gcode");
+		GCODE("gcode"),
+		QUEUE("queue");
 		
 		private String displayString;
 		Type(String displayString) { this.displayString = displayString; }
@@ -69,6 +86,8 @@ public abstract class BuildElement {
 	public boolean isModified() {
 		return modified;
 	}
+	
+	public abstract String getPath();
 
 	/**
 	 * Mark this element as modified.  All changes made in an editing window

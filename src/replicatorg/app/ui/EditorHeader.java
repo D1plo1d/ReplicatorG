@@ -26,6 +26,7 @@
 package replicatorg.app.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -110,13 +111,19 @@ public class EditorHeader extends BGPanel implements ActionListener {
 
 
 	private class TabButton extends JToggleButton implements BuildElement.Listener {
+		/*
+		 * Each TabButton either has a build element or a component but not both. 
+		 * This is a total hack.
+		 */
 		final BuildElement element;
+		final Component component;
 		
 		public BuildElement getBuildElement() { return element; }
 		
 		public TabButton(BuildElement element) {
 			buildElementUpdate(element); // set initial string
 			this.element = element;
+			this.component = null;
 			setUI(new TabButtonUI());
 			setBorder(new EmptyBorder(6,8,8,10));
 			tabGroup.add(this);
@@ -176,15 +183,18 @@ public class EditorHeader extends BGPanel implements ActionListener {
 		add(tb);
 		if (build.getOpenedElement() == element) { tb.doClick(); } 
 	}
-	
+
 	void setBuild(Build build) {
 		removeTabs();
+		//This is where the tabs of ReplicatorG are populated
 		if (build.getModel() != null) {
 			addTabForElement(build,build.getModel());
 		}
 		if (build.getCode() != null) {
 			addTabForElement(build,build.getCode());
 		}
+		addTabForElement(build, this.editor.getBuildQueue().buildElement);
+
 		titleLabel.setText(build.getName());
 		validate();
 		repaint();

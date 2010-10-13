@@ -61,6 +61,13 @@ public class BuildCode extends BuildElement implements Comparable<BuildCode> {
 			Base.logger.severe("error while loading code " + name);
 		}
 	}
+	
+	public String getPath() {
+		try {
+			return file.getCanonicalPath();
+		} catch (IOException ioe) { return null; }
+	}
+
 
 	/**
 	 * Load this piece of code from a file.

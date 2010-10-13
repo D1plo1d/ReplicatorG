@@ -156,6 +156,7 @@ public class MachineController {
 			while (i.hasNext()) {
 				String line = i.next();
 				linesProcessed++;
+				if (line == null||line.equals("")) continue;
 				if (Thread.interrupted()) {
 					Base.logger.info("build thread interrupted");
 					return false;
@@ -618,11 +619,18 @@ public class MachineController {
 		machineThread.buildRemote(remoteName);
 		return true;
 	}
-	
+
 	/**
-	 * Begin running a job.
+	 * Begin running a single job.
 	 */
 	public boolean execute() {
+		return execute(this.source);
+	}
+
+	/**
+	 * Begin running a single job.
+	 */
+	public boolean execute(GCodeSource source) {
 		// start simulator
 		if (simulator != null && Base.preferences.getBoolean("build.showSimulator",false))
 			simulator.createWindow();

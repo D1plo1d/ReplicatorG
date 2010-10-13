@@ -142,7 +142,7 @@ public class MainButtonPanel extends BGPanel implements MachineListener, ActionL
 
 	final static Color BACK_COLOR = new Color(0x5F, 0x73, 0x25); 
 	MainButton simButton, pauseButton, stopButton;
-	MainButton buildButton, resetButton, cpButton;
+	MainButton buildButton, buildQueueButton, resetButton, cpButton;
 	MainButton disconnectButton, connectButton;
 	
 	MainButton uploadButton, playbackButton, fileButton;
@@ -163,6 +163,8 @@ public class MainButtonPanel extends BGPanel implements MachineListener, ActionL
 		add(simButton);
 		buildButton = makeButton("Build", "images/button-build.png");
 		add(buildButton);
+		buildQueueButton = makeButton("Build Queue", "images/button-build-queue.png");
+		add(buildQueueButton);
 		uploadButton = makeButton("Upload to SD card", "images/button-upload.png");
 		add(uploadButton);
 		playbackButton = makeButton("Build from SD card", "images/button-playback.png");
@@ -215,6 +217,8 @@ public class MainButtonPanel extends BGPanel implements MachineListener, ActionL
 			editor.handleSimulate();
 		} else if (e.getSource() == buildButton) {
 			editor.handleBuild();
+		} else if (e.getSource() == buildQueueButton) {
+			editor.handleBuildQueue();
 		} else if (e.getSource() == uploadButton) {
 			editor.handleUpload();
 		} else if (e.getSource() == fileButton) {

@@ -131,6 +131,7 @@ import replicatorg.model.Build;
 import replicatorg.model.BuildCode;
 import replicatorg.model.BuildElement;
 import replicatorg.model.BuildModel;
+import replicatorg.model.BuildQueueGCodeSource;
 import replicatorg.model.JEditTextAreaSource;
 import replicatorg.plugin.toolpath.ToolpathGenerator;
 import replicatorg.plugin.toolpath.ToolpathGeneratorFactory;
@@ -158,8 +159,9 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	static final String WINDOW_TITLE = "ReplicatorG" + " - "
 			+ Base.VERSION_NAME;
 
-	final static String MODEL_TAB_KEY = "MODEL";
-	final static String GCODE_TAB_KEY = "GCODE";
+	final static String MODEL_TAB_KEY = BuildElement.Type.MODEL.name();
+	final static String GCODE_TAB_KEY = BuildElement.Type.GCODE.name();
+	final static String BUILD_QUEUE_TAB_KEY = BuildElement.Type.QUEUE.name();
 	// p5 icon for the window
 	Image icon;
 
@@ -207,8 +209,10 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	// currently opened program
 	public Build build;
 
+	/* ReplicatorG's Tabs */
 	public JEditTextArea textarea;
 	public PreviewPanel previewPanel;
+	public BuildQueuePanel buildQueuePanel;
 
 	public SimulationThread simulationThread;
 
@@ -253,7 +257,19 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 		}
 		return previewPanel;
 	}
-	
+
+	/**
+	 * If a build queue is not instantiated it is created. The build queue is returned.
+	 * @return the Build Queue Panel - a panel displaying the objects to be printed in a queue.
+	 */
+	public BuildQueuePanel getBuildQueue() {
+		if (buildQueuePanel == null) {
+			buildQueuePanel = new BuildQueuePanel(this.buttons.buildQueueButton);
+			cardPanel.add(buildQueuePanel, BUILD_QUEUE_TAB_KEY);
+		}
+		return buildQueuePanel;
+	}
+
 	private MRUList mruList;
 	
 	public MainWindow() {
@@ -306,11 +322,16 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 
 		pane.add(header,"growx,dock north");
 		
+		/* Adding the gcode tab */
 		textarea = new JEditTextArea(new PdeTextAreaDefaults());
 		textarea.setRightClickPopup(new TextAreaPopup());
 		textarea.setHorizontalOffset(6);
 
 		cardPanel.add(textarea,GCODE_TAB_KEY);
+
+		/* Adding the build queue tab */
+		getBuildQueue();
+		
 		
 		console = new MessagePanel(this);
 		console.setBorder(null);
@@ -1371,6 +1392,33 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 			machine.execute();
 		}
 	}
+	
+	public void handleBuildQueue() {
+		if (building)
+			return;
+		if (simulating)
+			return;
+
+		if (machine == null) {
+			Base.logger.severe("Not ready to build queue yet.");
+		} else {
+			// close stuff.
+			doClose();
+
+			// build specific stuff
+			building = true;
+			//buttons.activate(MainButtonPanel.BUILD);
+
+			setEditorBusy(true);
+
+			// start our building thread.
+
+			message("Building...");
+			buildStart = new Date();
+			machine.execute(new BuildQueueGCodeSource(buildQueuePanel.iterator));
+		}
+	}
+
 
 	public void handleUpload() {
 		if (building)
@@ -2355,12 +2403,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 		currentElement = e;
 		if (currentElement != null) {
 			CardLayout cl = (CardLayout)cardPanel.getLayout();
-			if (currentElement.getType() == BuildElement.Type.MODEL ) {
-				cl.show(cardPanel, MODEL_TAB_KEY);
-			} else {
-				cl.show(cardPanel, GCODE_TAB_KEY);
-			}
-			
+			cl.show(cardPanel, currentElement.getType().name());
 		}
 		updateUndo();
 	}
@@ -2374,6 +2417,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	public void stateChanged(ChangeEvent e) {
 		// We get a change event when another tab is selected.
 		setCurrentElement(header.getSelectedElement());
+		System.out.println(header.getSelectedElement().getType());
 	}
 
 	public void generationComplete(Completion completion, Object details) {
