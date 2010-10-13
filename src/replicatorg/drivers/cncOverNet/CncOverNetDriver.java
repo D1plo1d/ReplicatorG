@@ -248,4 +248,16 @@ public class CncOverNetDriver extends NetworkDriver
 		
 	}
 
+	@Override
+	public ExtraFeatures getExtraFeatures() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setExtraFeatures(ExtraFeatures features) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
