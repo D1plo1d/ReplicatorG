@@ -120,7 +120,10 @@ import replicatorg.app.syntax.PdeKeywords;
 import replicatorg.app.syntax.PdeTextAreaDefaults;
 import replicatorg.app.syntax.SyntaxDocument;
 import replicatorg.app.syntax.TextAreaPainter;
+import replicatorg.app.ui.buildQueue.BuildQueueCompiler;
+import replicatorg.app.ui.buildQueue.BuildQueuePanel;
 import replicatorg.app.ui.modeling.PreviewPanel;
+import replicatorg.app.ui.util.FileBrowser;
 import replicatorg.app.util.PythonUtils;
 import replicatorg.app.util.SwingPythonSelector;
 import replicatorg.drivers.ConnectableDriver;
@@ -271,7 +274,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	 */
 	public BuildQueuePanel getBuildQueue() {
 		if (buildQueuePanel == null) {
-			buildQueuePanel = new BuildQueuePanel(this.buttons.buildQueueButton);
+			buildQueuePanel = new BuildQueuePanel(this.buttons.buildQueueButton, this);
 			cardPanel.add(buildQueuePanel, BUILD_QUEUE_TAB_KEY);
 		}
 		return buildQueuePanel;
@@ -1463,6 +1466,11 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 			//buttons.activate(MainButtonPanel.BUILD);
 
 			setEditorBusy(true);
+			
+			// start compiling the stls
+			
+			message("Compiling STLs.. ");
+			buildQueuePanel.compile();
 
 			// start our building thread.
 
@@ -1998,30 +2006,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	}
 
 	private String selectFile() {
-		File directory = null;
-		String loadDir = Base.preferences.get("ui.open_dir", null);
-		if (loadDir != null) { directory = new File(loadDir); }
-		JFileChooser fc = new JFileChooser(directory);
-		FileFilter defaultFilter;
-		String[] extensions = {".gcode",".stl"};
-		fc.addChoosableFileFilter(defaultFilter = new ExtensionFilter(extensions,"GCode or STL files"));
-		fc.addChoosableFileFilter(new ExtensionFilter(".gcode","GCode files"));
-		fc.addChoosableFileFilter(new ExtensionFilter(".stl","STL files"));
-		fc.addChoosableFileFilter(new ExtensionFilter(".obj","OBJ files (experimental)"));
-		fc.addChoosableFileFilter(new ExtensionFilter(".dae","Collada files (experimental)"));
-		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(defaultFilter);
-		fc.setDialogTitle("Open a gcode or model file...");
-		fc.setDialogType(JFileChooser.OPEN_DIALOG);
-		fc.setFileHidingEnabled(false);
-		int rv = fc.showOpenDialog(this);
-	    if (rv == JFileChooser.APPROVE_OPTION) {
-	    	fc.getSelectedFile().getName();
-	    	Base.preferences.put("ui.open_dir",fc.getCurrentDirectory().getAbsolutePath());
-	    	return fc.getSelectedFile().getAbsolutePath();
-	    } else {
-	    	return null;
-	    }
+		return new FileBrowser(false).open()[0].toString();
 	}
 	
 	/**

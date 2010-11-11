@@ -90,8 +90,8 @@
       <jvmarg value="-ea"/>
       <jvmarg value="${native.java.flags}"/>
       <classpath>
-	<path refid="classpath"/>
-	<pathelement location="${jar.dir}/${ant.project.name}.jar"/>
+		<path refid="classpath"/>
+		<pathelement location="${jar.dir}/${ant.project.name}.jar"/>
       </classpath>
       <sysproperty key="java.library.path" path="${native.lib.dir}"/>
       <sysproperty key="replicatorg.app-resources" path="${lib.dir}"/>

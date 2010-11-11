@@ -70,6 +70,10 @@ public class BuildQueueGCodeSource implements GCodeSource {
 				// IOException, lets just kill this.
 				e.printStackTrace();
 				return false;
+			} catch (NullPointerException e2) {
+				// NullPointerException, lets just kill this.
+				e2.printStackTrace();
+				return false;
 			}
 			/* file is still open; file end is not reached yet */
 			if (!fileEndReached) return true;
@@ -93,6 +97,8 @@ public class BuildQueueGCodeSource implements GCodeSource {
 			try {
 				return currentSource.readLine();
 			} catch (IOException e) {
+				return "";
+			} catch (NullPointerException e2) {
 				return "";
 			}
 		}

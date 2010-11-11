@@ -23,6 +23,8 @@
 
 package replicatorg.drivers;
 
+import javax.vecmath.Point3d;
+
 import org.w3c.dom.Node;
 
 import replicatorg.app.exceptions.GCodeException;
@@ -61,5 +63,9 @@ public class NullDriver extends DriverBaseImplementation {
 			if (millis > 0)
 				Thread.sleep(millis);
 		}
+	}
+	
+	protected Point3d reconcilePosition() {
+		return new Point3d(0.0, 0.0, 0.0);
 	}
 }

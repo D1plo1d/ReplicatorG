@@ -33,7 +33,7 @@ public class ToolpathGeneratorThread extends Thread {
 		JLabel progressLabel;
 		JButton doneButton;
 		
-		public ProgressDialog(Frame parent, Build build) { 
+		public ProgressDialog(Frame parent, Build build) {
 			super(parent);
 			ImageIcon icon = new ImageIcon(Base.getDirectImage("images/slicing-icon.gif",this));
 			setTitle("Generating toolpath for "+build.getName());

@@ -2,7 +2,7 @@ package replicatorg.model;
 
 import java.io.OutputStream;
 
-import replicatorg.app.ui.BuildQueuePanel;
+import replicatorg.app.ui.buildQueue.BuildQueuePanel;
 
 public class BuildQueueBuildElement extends BuildElement {
 	
