@@ -2,6 +2,7 @@ package replicatorg.app.ui.buildQueue;
 
 import java.awt.Component;
 import java.io.IOException;
+import java.util.HashMap;
 
 import replicatorg.app.Base;
 import replicatorg.app.ui.MainWindow;
@@ -23,9 +24,20 @@ public class BuildQueueCompiler {
 	{
 	}
 	
-	public void compile(Component[] buildItems, MainWindow mainWindow)
+	public void compile(final Component[] buildItems, final MainWindow mainWindow)
 	{
-		
+		int stlCount = 0;
+		for (Component component : buildItems)
+		{
+			BuildItem buildItem = (BuildItem)component;
+			if (buildItem.gcode.exists() != true) stlCount ++;
+		}
+
+		if (stlCount == 0) return;
+
+		final BuildQueueCompilerDialog compilerDialog = 
+			new BuildQueueCompilerDialog (mainWindow, stlCount);
+
 		for (Component component : buildItems)
 		{
 			BuildItem buildItem = (BuildItem)component;
@@ -33,12 +45,22 @@ public class BuildQueueCompiler {
 			
 			ToolpathGenerator generator = ToolpathGeneratorFactory.createSelectedGenerator();
 			try {
-				// starting the toolpath generator thread
 				Build build = new Build(mainWindow, buildItem.gcode.getAbsolutePath());
+				generator.setModel(build.getModel());
+
+				// loading the material
+				//TODO: this is a test setup, eventually this will load from xml.
+				HashMap<String, String> material = new HashMap<String, String>();
+				material.put("profile", "SF31-cupcake-automated-platform-ABS");
+				material.put("useRaft", "false");
+				generator.autoConfigure(material);
+				
+				// starting the toolpath generator thread
 				ToolpathGeneratorThread thread = new ToolpathGeneratorThread(mainWindow, generator, build);
 				
 				// setting up the notifier and listener to tell us when the generator is done
 				final Object notifier = new Object();
+				thread.addListener(compilerDialog);
 				thread.addListener(new GeneratorListener() {
 
 					@Override
@@ -49,7 +71,10 @@ public class BuildQueueCompiler {
 					@Override
 					public void generationComplete(Completion completion,
 							Object details) {
-						notifier.notifyAll();
+						synchronized(notifier)
+						{
+							notifier.notifyAll();
+						}
 					}
 				});
 

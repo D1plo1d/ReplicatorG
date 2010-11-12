@@ -18,7 +18,7 @@ import javax.swing.JTextField;
 @SuppressWarnings("serial")
 public class BuildItem extends JPanel implements ActionListener
 {
-	private final File file;
+	public final File file;
 	public final String name;
 	private final BuildQueuePanel buildQueue;
 	public final AtomicInteger quantity = new AtomicInteger(1);
@@ -38,7 +38,7 @@ public class BuildItem extends JPanel implements ActionListener
 		}
 		else
 		{
-			this.gcode = new File( filename.substring(0, filename.lastIndexOf('.')-1)+".gcode" );
+			this.gcode = new File( filename.substring(0, filename.lastIndexOf('.'))+".gcode" );
 		}
 		
 		this.buildQueue = buildQueue;

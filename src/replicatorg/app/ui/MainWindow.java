@@ -1458,25 +1458,32 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 		if (machine == null) {
 			Base.logger.severe("Not ready to build queue yet.");
 		} else {
-			// close stuff.
-			doClose();
+			Runnable runner = new Runnable() {
 
-			// build specific stuff
-			building = true;
-			//buttons.activate(MainButtonPanel.BUILD);
-
-			setEditorBusy(true);
-			
-			// start compiling the stls
-			
-			message("Compiling STLs.. ");
-			buildQueuePanel.compile();
-
-			// start our building thread.
-
-			message("Building...");
-			buildStart = new Date();
-			machine.execute(new BuildQueueGCodeSource(buildQueuePanel.iterator));
+				@Override
+				public void run() {
+					// close stuff.
+					doClose();
+		
+					// build specific stuff
+					building = true;
+					//buttons.activate(MainButtonPanel.BUILD);
+		
+					setEditorBusy(true);
+					
+					// start compiling the stls
+					
+					message("Compiling STLs.. ");
+					buildQueuePanel.compile();
+		
+					// start our building thread.
+		
+					message("Building...");
+					buildStart = new Date();
+					machine.execute(new BuildQueueGCodeSource(buildQueuePanel.iterator));
+				}
+			};
+			new Thread(runner,"build queue").start();
 		}
 	}
 
@@ -2006,7 +2013,9 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	}
 
 	private String selectFile() {
-		return new FileBrowser(false).open()[0].toString();
+		File[] files = new FileBrowser(false).open();
+		if (files == null) return null;
+		return files[0].toString();
 	}
 	
 	/**

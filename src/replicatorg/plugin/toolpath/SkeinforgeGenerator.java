@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -67,12 +68,16 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 	List<Profile> getProfiles() {
 		final List<Profile> profiles = new LinkedList<Profile>();
 		// Get default installed profiles
-		File dir = new File(getSkeinforgeDir(),"prefs");
+		File dir = getProfilesDir();
 		getProfilesIn(dir,profiles);
 		dir = getUserProfilesDir();
 		getProfilesIn(dir,profiles);
 		Collections.sort(profiles);
 		return profiles;
+	}
+	
+	File getProfilesDir() {
+		return new File(getSkeinforgeDir(),"prefs");
 	}
 	
 	class ConfigurationDialog extends JDialog {
@@ -95,9 +100,11 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 
 			add(new JLabel("Select a printing profile:"),"wrap");
 
+			//Add the list of skeinforge profiles
 			final JList prefList = new JList();
 			loadList(prefList);
 			add(prefList,"growy");
+
 			JButton editButton = new JButton("Edit...");
 			add(editButton,"split,flowy,growx");
 			editButton.addActionListener(new ActionListener() {
@@ -160,8 +167,10 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 
 			JButton ok = new JButton("Ok");
 			add(ok,"tag ok");
+
 			JButton cancel = new JButton("Cancel");
 			add(cancel,"tag cancel");
+
 			ok.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					int idx = prefList.getSelectedIndex(); 
@@ -175,6 +184,7 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 					}
 				}
 			});
+
 			cancel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					configSuccess = false;
@@ -184,7 +194,8 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 		}
 		
 	};
-	public boolean visualConfigure(Frame parent) {
+	public synchronized boolean visualConfigure(Frame parent) {
+		if (super.visualConfigure(parent) == false) return false;
 		// First check for Python.
 		boolean hasPython = PythonUtils.interactiveCheckVersion(parent, "Generating gcode",
 				new PythonUtils.Version(2,5,0),
@@ -192,7 +203,10 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 		if (!hasPython) { return false; }
 		boolean hasTkInter = PythonUtils.interactiveCheckTkInter(parent, "Generating gcode");
 		if (!hasTkInter) { return false; }
+		
+		//Open the configuration dialog
 		ConfigurationDialog cd = new ConfigurationDialog(parent);
+
 		double x = parent.getBounds().getCenterX();
 		double y = parent.getBounds().getCenterY();
 		cd.pack();
@@ -234,6 +248,31 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 				process.destroy();
 			}
 		}
+	}
+	
+	public synchronized boolean autoConfigure(HashMap<String, String> material)
+	{
+		String profileName = material.get("profile");
+		File possibleProfile;
+		if ( (possibleProfile = new File(getUserProfilesDir(),profileName)).exists() )
+		{ // user profiles
+			profile = possibleProfile.getAbsolutePath();
+		}
+		else if ( (possibleProfile = new File(getProfilesDir(),profileName)).exists() )
+		{ // built in profiles
+			profile = possibleProfile.getAbsolutePath();
+		}
+		else
+		{ // no matching profile
+			return false;
+		}
+		
+		useRaft = material.containsKey("useRaft")?
+				Boolean.parseBoolean(material.get("useRaft")) : false;
+		
+		if (super.autoConfigure(material) == false) return false;
+		configSuccess = true;
+		return true;
 	}
 	
 	public BuildCode generateToolpath() {

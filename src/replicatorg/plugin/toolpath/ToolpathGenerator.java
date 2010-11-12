@@ -1,7 +1,9 @@
 package replicatorg.plugin.toolpath;
 
 import java.awt.Frame;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import replicatorg.model.BuildCode;
 import replicatorg.model.BuildModel;
@@ -24,6 +26,8 @@ public abstract class ToolpathGenerator {
 	protected BuildModel model;
 	protected LinkedList<GeneratorListener> listeners = new LinkedList<GeneratorListener>();
 	
+	private AtomicBoolean configured = new AtomicBoolean(false);
+	
 	public void addListener(GeneratorListener listener) {
 		listeners.add(listener);
 	}
@@ -33,12 +37,36 @@ public abstract class ToolpathGenerator {
 	}
 	
 	/**
+	 * configures the model to automatically use the specified material.
+	 * 
+	 * a material will have properties such as density, color and material (ie it's chemistry)
+	 * as well as the required info to build these abstract properties to material-specific 
+	 * toolpath generator settings.
+	 * 
+	 * @param material
+	 * @return true if successful.
+	 */
+	public synchronized boolean autoConfigure(HashMap<String, String> material)
+	{
+		configured.set(true);
+		return true;
+	}
+
+	/**
+	 * Configures the model manually using user input.
+	 * 
 	 * Returns true if configuration successful; false if aborted.
 	 */
-	public boolean visualConfigure(Frame parent) {
+	public synchronized boolean visualConfigure(Frame parent) {
 		assert parent != null;
 		assert model != null;
+		configured.set(true);
 		return true;
+	}
+	
+	public boolean isConfigured()
+	{
+		return configured.get();
 	}
 	
 	public abstract BuildCode generateToolpath();

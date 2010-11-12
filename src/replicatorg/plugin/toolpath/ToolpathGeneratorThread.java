@@ -3,6 +3,7 @@ package replicatorg.plugin.toolpath;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import javax.swing.ImageIcon;
@@ -20,7 +21,7 @@ import replicatorg.plugin.toolpath.ToolpathGenerator.GeneratorListener;
 
 public class ToolpathGeneratorThread extends Thread {
 	private Frame parent;
-	private ToolpathGenerator generator;
+	public final ToolpathGenerator generator;
 	private Build build;
 
 	private void abortGeneration() {
@@ -91,9 +92,11 @@ public class ToolpathGeneratorThread extends Thread {
 		generator.setModel(build.getModel());
 		ProgressDialog progressDialog = null;
 		if (parent != null) {
-			// Configure, if possible
+			// If not already configured configure, if possible
 			progressDialog = new ProgressDialog(parent,build);
-			if (!generator.visualConfigure(parent)) { return; }
+			if (generator.isConfigured() == false &&
+					!generator.visualConfigure(parent)) { return; }
+
 			generator.addListener(progressDialog);
 			// This actually works because it's a modal dialog;
 			// a new nested event loop is generated in the event loop
