@@ -97,6 +97,9 @@ M18
 		<warmup>
 		</warmup>
 		<cooldown>
+(Turn off the extruder + heated build platform after a build.)
+M104 S0 T0 (extruder)
+M109 S0 T0 (heated build-platform)
 (Turn off steppers after a build.)
 M18
 		</cooldown>
