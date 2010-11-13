@@ -1,8 +1,11 @@
 package replicatorg.app.ui.buildQueue;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,10 +13,11 @@ import java.io.FileReader;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
+import javax.swing.text.NumberFormatter;
 
 @SuppressWarnings("serial")
 public class BuildItem extends JPanel implements ActionListener
@@ -48,14 +52,16 @@ public class BuildItem extends JPanel implements ActionListener
 		JButton remove = new JButton("remove");
 
 		// Quantity
-		final JTextField quantityValue = new JTextField(""+quantity.get());
-		quantityValue.addActionListener(new ActionListener() {
-
+		final JFormattedTextField quantityField = new JFormattedTextField(new NumberFormatter());
+		quantityField.setValue( quantity.get() );
+		quantityField.setPreferredSize(new Dimension(30, quantityField.getPreferredSize().height));
+		quantityField.addPropertyChangeListener(new PropertyChangeListener() {
+			
 			@Override
-			public void actionPerformed(ActionEvent event) {
+			public void propertyChange(PropertyChangeEvent event) {
 				try
 				{
-					quantity.set( Integer.parseInt( quantityValue.getText().trim() ) );
+					quantity.set( Integer.parseInt( quantityField.getText().trim() ) );
 				}
 				catch(NumberFormatException e){/*ignore non-number values*/};
 			}
@@ -66,7 +72,7 @@ public class BuildItem extends JPanel implements ActionListener
 		
 		JPanel rightPanel = new JPanel();
 		rightPanel.add(new JLabel("Quantity: "));
-		rightPanel.add(quantityValue);
+		rightPanel.add(quantityField);
 		rightPanel.add(remove);
 		
 		

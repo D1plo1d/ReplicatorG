@@ -1475,7 +1475,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 					
 					message("Compiling STLs.. ");
 					buildQueuePanel.compile();
-		
+					
 					// start our building thread.
 		
 					message("Building...");
