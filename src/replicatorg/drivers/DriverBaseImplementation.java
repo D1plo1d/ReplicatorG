@@ -24,6 +24,7 @@
 package replicatorg.drivers;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 
 import javax.vecmath.Point3d;
 
@@ -33,6 +34,7 @@ import replicatorg.app.Base;
 import replicatorg.app.GCodeParser;
 import replicatorg.app.exceptions.BuildFailureException;
 import replicatorg.app.exceptions.GCodeException;
+import replicatorg.app.tools.XML;
 import replicatorg.machine.model.Axis;
 import replicatorg.machine.model.MachineModel;
 
@@ -68,6 +70,8 @@ public class DriverBaseImplementation implements Driver {
 	// what is our mode of positioning?
 	protected int positioningMode = 0;
 
+	private String defaultMaterialProfile;
+
 	static public int ABSOLUTE = 0;
 
 	static public int INCREMENTAL = 1;
@@ -92,6 +96,30 @@ public class DriverBaseImplementation implements Driver {
 	}
 
 	public void loadXML(Node xml) {
+		Node materialXml = XML.getChildNodeByName(xml, "material");
+        if (materialXml != null
+        		&& Boolean.parseBoolean(XML.getAttributeValue(materialXml, "default"))==true)
+        {
+        	//TODO: only works for a single material atm. In the future machines should be able 
+        	//to have multiple material options.
+        	defaultMaterialProfile = XML.getAttributeValue(materialXml, "profile");
+        }
+        else
+        {
+        	throw new RuntimeException("No default material found for machine in xml.");
+        }
+	}
+
+	public HashMap<String, String> assignProfile(HashMap<String, String> material)
+	{
+		synchronized(material)
+		{
+			//TODO: this is a placeholder, for now we only have the default profile.
+			material.put("profile",defaultMaterialProfile);
+			//TODO: this is all still very hard coded.
+			material.put("useRaft", "false");
+			return material;
+		}
 	}
 
 	public void dispose() {

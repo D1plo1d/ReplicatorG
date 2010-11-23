@@ -24,6 +24,7 @@
 package replicatorg.drivers;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 
 import javax.vecmath.Point3d;
 
@@ -48,6 +49,14 @@ public interface Driver {
 	 * parse and load configuration data from XML
 	 */
 	public void loadXML(Node xml);
+
+	/**
+	 * Adds a profile node to the given material hashmap. The profile node contains a skeinforge 
+	 * profile specific to this machine and the parameters for the given material.
+	 * @param material
+	 * @return
+	 */
+	public HashMap<String, String> assignProfile(HashMap<String, String> material);
 
 	/**
 	 * parse a command. usually passes it through to the parser.

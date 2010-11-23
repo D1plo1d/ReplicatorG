@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import replicatorg.app.Base;
+import replicatorg.app.MachineFactory;
 import replicatorg.app.ui.MainWindow;
+import replicatorg.drivers.Driver;
 import replicatorg.model.Build;
 import replicatorg.plugin.toolpath.ToolpathGenerator;
 import replicatorg.plugin.toolpath.ToolpathGenerator.GeneratorListener;
@@ -19,9 +21,11 @@ import replicatorg.plugin.toolpath.ToolpathGeneratorThread;
  *
  */
 public class BuildQueueCompiler {
+	Driver driver;
 	
-	public BuildQueueCompiler()
+	public BuildQueueCompiler(Driver driver)
 	{
+		this.driver = driver;
 	}
 	
 	public void compile(final Component[] buildItems, final MainWindow mainWindow)
@@ -49,10 +53,11 @@ public class BuildQueueCompiler {
 				generator.setModel(build.getModel());
 
 				// loading the material
-				//TODO: this is a test setup, eventually this will load from xml.
+				//TODO: this is a test setup, eventually this will load a specific material.
 				HashMap<String, String> material = new HashMap<String, String>();
-				material.put("profile", "SF31-cupcake-automated-platform-ABS");
-				material.put("useRaft", "false");
+				//Injecting machine-specific settings into the material
+				driver.assignProfile(material);
+
 				generator.autoConfigure(material);
 				
 				// starting the toolpath generator thread

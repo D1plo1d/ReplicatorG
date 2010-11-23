@@ -1477,10 +1477,10 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 					buildQueuePanel.compile();
 					
 					// start our building thread.
-		
+					
 					message("Building...");
 					buildStart = new Date();
-					machine.execute(new BuildQueueGCodeSource(buildQueuePanel.iterator));
+					machine.execute(new BuildQueueGCodeSource(buildQueuePanel.getIterator()));
 				}
 			};
 			new Thread(runner,"build queue").start();

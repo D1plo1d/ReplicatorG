@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import replicatorg.app.Base;
 import replicatorg.app.ui.MainWindow;
 import replicatorg.app.ui.util.FileBrowser;
 import replicatorg.model.BuildElement;
@@ -48,8 +49,6 @@ public class BuildQueuePanel extends JPanel implements ActionListener {
 	private JButton addItemButton = new JButton("add build item");
 
 	private final FileBrowser addItemFileBrowser = new FileBrowser(true);
-
-	public final Iterator<BufferedReader> iterator = new BuildQueueIterator(this);
 	
 	private final JButton buildQueueButton;
 
@@ -153,8 +152,12 @@ public class BuildQueuePanel extends JPanel implements ActionListener {
 		{
 			items = buildItems.getComponents();
 		}
-		BuildQueueCompiler compiler = new BuildQueueCompiler();
+		BuildQueueCompiler compiler = new BuildQueueCompiler(Base.getMachine().driver);
 		compiler.compile(items, mainWindow);
 	}
-
+	
+	public Iterator<BufferedReader> getIterator()
+	{
+		return new BuildQueueIterator(this);
+	}
 }
