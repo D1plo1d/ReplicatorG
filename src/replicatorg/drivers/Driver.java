@@ -94,6 +94,11 @@ public interface Driver {
 	public void initialize() throws VersionException;
 		
 	/**
+	 * uninitializes driver (disconnects from machine)
+	 */
+	public void uninitialize();
+
+	/**
 	 * See if the driver has been successfully initialized.
 	 * 
 	 * @return true if the driver is initialized
@@ -117,7 +122,7 @@ public interface Driver {
 	 * 
 	 * @throws InterruptedException
 	 */
-	public void execute() throws GCodeException, InterruptedException;
+	public void execute() throws GCodeException, InterruptedException, RetryException;
 
 	/**
 	 * get version information from the driver
@@ -142,8 +147,9 @@ public interface Driver {
 	 * 
 	 * @param p
 	 *            the point to map the current position to
+	 * @throws RetryException 
 	 */
-	public void setCurrentPosition(Point3d p);
+	public void setCurrentPosition(Point3d p) throws RetryException;
 
 	public Point3d getCurrentPosition();
 
@@ -156,19 +162,27 @@ public interface Driver {
 	/**
 	 * Queue the next point to move to.
 	 * @param p The location to move to, in mm.
+	 * @throws RetryException 
 	 */
-	public void queuePoint(Point3d p);
+	public void queuePoint(Point3d p) throws RetryException;
 
 	public Point3d getOffset(int i);
+
+	public void setOffsetX(int i, double j);
+
+	public void setOffsetY(int i, double j);
+
+	public void setOffsetZ(int i, double j);
 
 	public Point3d getPosition();
 
 	/**
 	 * Tool methods
+	 * @throws RetryException 
 	 */
-	public void requestToolChange(int toolIndex);
+	public void requestToolChange(int toolIndex, int timeout) throws RetryException;
 
-	public void selectTool(int toolIndex);
+	public void selectTool(int toolIndex) throws RetryException;
 
 	/**
 	 * sets the feedrate in mm/minute
@@ -183,13 +197,15 @@ public interface Driver {
 	/**
 	 * Home the given set of axes at the given feedrate.  If the feedrate is <=0, run at
 	 * maximum feedrate for the appropriate axes.
+	 * @throws RetryException 
 	 */
-	public void homeAxes(EnumSet<Axis> axes, boolean positive, double feedrate);
+	public void homeAxes(EnumSet<Axis> axes, boolean positive, double feedrate) throws RetryException;
 
 	/**
 	 * delay / pause function
+	 * @throws RetryException 
 	 */
-	public void delay(long millis);
+	public void delay(long millis) throws RetryException;
 
 	/**
 	 * functions for dealing with clamps
@@ -200,10 +216,11 @@ public interface Driver {
 
 	/**
 	 * enabling/disabling our drivers (steppers, servos, etc.)
+	 * @throws RetryException 
 	 */
-	public void enableDrives();
+	public void enableDrives() throws RetryException;
 
-	public void disableDrives();
+	public void disableDrives() throws RetryException;
 
 	/**
 	 * change our gear ratio
@@ -215,24 +232,25 @@ public interface Driver {
 	 **************************************************************************/
 	public void setMotorDirection(int dir);
 
-	public void setMotorRPM(double rpm);
+	public void setMotorRPM(double rpm) throws RetryException;
 
-	public void setMotorSpeedPWM(int pwm);
+	public void setMotorSpeedPWM(int pwm) throws RetryException;
 
 	public double getMotorRPM();
 
 	public int getMotorSpeedPWM();
 
-	public void enableMotor();
+	public void enableMotor() throws RetryException;
 
-	public void disableMotor();
+	public void disableMotor() throws RetryException;
 
 	/***************************************************************************
 	 * Spindle interface functions
+	 * @throws RetryException 
 	 **************************************************************************/
-	public void setSpindleRPM(double rpm);
+	public void setSpindleRPM(double rpm) throws RetryException;
 
-	public void setSpindleSpeedPWM(int pwm);
+	public void setSpindleSpeedPWM(int pwm) throws RetryException;
 
 	public void setSpindleDirection(int dir);
 
@@ -240,14 +258,15 @@ public interface Driver {
 
 	public int getSpindleSpeedPWM();
 
-	public void enableSpindle();
+	public void enableSpindle() throws RetryException;
 
-	public void disableSpindle();
+	public void disableSpindle() throws RetryException;
 
 	/***************************************************************************
 	 * Temperature interface functions
+	 * @throws RetryException 
 	 **************************************************************************/
-	public void setTemperature(double temperature);
+	public void setTemperature(double temperature) throws RetryException;
 	
 	public void readTemperature();
 	
@@ -257,8 +276,9 @@ public interface Driver {
 	
 	/***************************************************************************
 	 * Platform Temperature interface functions
+	 * @throws RetryException 
 	 **************************************************************************/
-	public void setPlatformTemperature(double temperature);
+	public void setPlatformTemperature(double temperature) throws RetryException;
 	
 	public void readPlatformTemperature();
 	
@@ -291,17 +311,19 @@ public interface Driver {
 
 	/***************************************************************************
 	 * Fan interface functions
+	 * @throws RetryException 
 	 **************************************************************************/
-	public void enableFan();
+	public void enableFan() throws RetryException;
 
-	public void disableFan();
+	public void disableFan() throws RetryException;
 
 	/***************************************************************************
 	 * Valve interface functions
+	 * @throws RetryException 
 	 **************************************************************************/
-	public void openValve();
+	public void openValve() throws RetryException;
 
-	public void closeValve();
+	public void closeValve() throws RetryException;
 
 	/***************************************************************************
 	 * Collet interface functions

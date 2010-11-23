@@ -3,6 +3,8 @@
  */
 package replicatorg.drivers;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.w3c.dom.Node;
 
 import replicatorg.app.Base;
@@ -24,7 +26,10 @@ public class SerialDriver extends DriverBaseImplementation implements UsesSerial
     private float stopbits;
 
     private boolean explicit = false;
-    
+	
+    /** Lock for multi-threaded access to this driver's serial port. */
+	public final ReentrantLock serialWriteLock = new ReentrantLock();
+	
     protected SerialDriver() {
     	portName = Base.preferences.get("serial.portname",null);
     	rate = Base.preferences.getInt("serial.debug_rate",19200);
@@ -56,13 +61,21 @@ public class SerialDriver extends DriverBaseImplementation implements UsesSerial
 	}
 
 	public void setSerial(Serial serial) {
-		if (this.serial == serial) return;
+		serialWriteLock.lock();
+		if (this.serial == serial)
+		{
+			serialWriteLock.unlock();
+			return;
+		}
 		if (this.serial != null) {
-			this.serial.dispose();
-			this.serial = null;
+			synchronized(serial) {
+				this.serial.dispose();
+				this.serial = null;
+			}
 		}
 		setInitialized(false);
 		this.serial = serial;
+		serialWriteLock.unlock();
 	}
 
 	public Serial getSerial() { return serial; }
@@ -90,9 +103,11 @@ public class SerialDriver extends DriverBaseImplementation implements UsesSerial
 	public boolean isExplicit() { return explicit; }
 	
 	public void dispose() {
+		serialWriteLock.lock();
 		super.dispose();
 		if (serial != null)
 			serial.dispose();
 		serial = null;
+		serialWriteLock.unlock();
 	}
 }

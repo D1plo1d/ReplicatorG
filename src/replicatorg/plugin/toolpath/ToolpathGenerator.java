@@ -27,6 +27,7 @@ public abstract class ToolpathGenerator {
 	protected LinkedList<GeneratorListener> listeners = new LinkedList<GeneratorListener>();
 	
 	private AtomicBoolean configured = new AtomicBoolean(false);
+	HashMap<String, String> material;
 	
 	public void addListener(GeneratorListener listener) {
 		listeners.add(listener);
@@ -49,6 +50,7 @@ public abstract class ToolpathGenerator {
 	public synchronized boolean autoConfigure(HashMap<String, String> material)
 	{
 		configured.set(true);
+		this.material = material;
 		return true;
 	}
 

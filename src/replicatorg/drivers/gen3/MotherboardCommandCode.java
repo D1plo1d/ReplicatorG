@@ -27,6 +27,8 @@ public enum MotherboardCommandCode {
 	RESET(17),
 
 	NEXT_FILENAME(18),
+	// Get the build name
+	GET_BUILD_NAME(20),
 	
 	// QUEUE_POINT_INC(128) obsolete
 	QUEUE_POINT_ABS(129),
@@ -37,7 +39,8 @@ public enum MotherboardCommandCode {
 	CHANGE_TOOL(134),
 	WAIT_FOR_TOOL(135),
 	TOOL_COMMAND(136),
-	ENABLE_AXES(137);
+	ENABLE_AXES(137),
+	WAIT_FOR_PLATFORM(141);
 	
 	private int code;
 	private MotherboardCommandCode(int code) {

@@ -157,9 +157,14 @@
                     extensions="gcode" 
                     iconFile="${dist.dir}/replicatorg.icns"
                     role="Editor"/>
+      <documenttype name="STL 3D model" 
+                    extensions="stl" 
+                    iconFile="${dist.dir}/replicatorg.icns"
+                    role="Editor"/>
       <resourcefileset dir="${lib.dir}" includes="*.gif"/>
       <resourcefileset dir="${lib.dir}" includes="*.jpg"/>
       <javaproperty name="replicatorg.app-resources" value="$APP_PACKAGE/Contents/Resources"/>
+      <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
     </jarbundler>
     <copy todir="${target.dir}">
       <fileset dir="${dist.dir}" includes="drivers/*.dmg"/>
@@ -187,10 +192,10 @@
     <echo message="Preparing replicatorG. Version: ${replicatorg.version}" />
     <mkdir dir="${target.dir}"/>
     <copy todir="${target.dir}">
-      <filelist dir="." files="license.txt,readme.txt,todo.txt"/>
+      <filelist dir="." files="license.txt,readme.txt,todo.txt,contributors.txt"/>
     </copy>
-    <copy todir="${target.dir}/skeinforge">
-      <fileset dir="skeinforge" excludes="*.pyc"/>
+    <copy todir="${target.dir}/skein_engines">
+      <fileset dir="skein_engines" excludes="*.pyc"/>
     </copy>
     <copy file="machines.xml.dist" tofile="${target.dir}/machines.xml"/>
   </target>

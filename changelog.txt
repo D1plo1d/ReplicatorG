@@ -1,10 +1,34 @@
+0022 ReplicatorG
+Contributions:
+* justjoheinz: added profile delete button
+* nazdravi: check for "python2" for compatibility on systems which default to python 3.x
+* Erik: added 5D driver for RepRap's and compatible firmwares (Ultimaker)
+* Erik: STL preview now is the actual build volumes configured in machines.xml
+* Charles: Added skeinforge 33
+* Marius: Added generalized skeinforge merge patch
+* Marius: Added skeinforge 35
+* Marius: Added build platform belt checkbox to control panel
+
+0021 ReplicatorG
+Bugfix release
+* Refactored controller/driver interaction to move buffer-full retries to controller responsibilities
+* Do not send stop packet on program exit when quitting ReplicatorG
+Contributions:
+* justjoheinz: turn off control panel and build menu options when disconnected
+* charlespax: skeinforge tweaks (checkin of Nick Starno's code)
+
+
 0020 ReplicatorG
+Removed:
+* Took out temperature monitoring
 New features:
 * Pulled in skeinforge 31
 * Adding new profiles for skeinforge 31
 * Added support for v2.5 extruder firmware:
   * Support for motor controller swapping
   * Support for mosfet channel reassignment
+Other changes:
+* Improving handling for CRC failures
 Contributions:
 * chlunde: Edge mode on 'e' keypress re-enabled
 * Miles Lightwood, Eberhard Rensch, koenkooi:

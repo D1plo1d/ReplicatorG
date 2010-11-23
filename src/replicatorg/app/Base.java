@@ -94,7 +94,7 @@ public class Base {
 	/**
 	 * The version number of this edition of replicatorG.
 	 */
-	public static final int VERSION = 19;
+	public static final int VERSION = 21;
 	/**
 	 * The textual representation of this version (4 digits, zero padded).
 	 */
@@ -327,9 +327,10 @@ public class Base {
 					}
 				});
 				// load up our default machine
+				boolean autoconnect = Base.preferences.getBoolean("replicatorg.autoconnect",true);
 				String machineName = preferences.get("machine.name",null); 
 				if (machineName != null) {
-					editor.loadMachine(machineName);
+					editor.loadMachine(machineName, autoconnect);
 				}
 				// show the window
 				editor.setVisible(true);

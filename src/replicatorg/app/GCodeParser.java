@@ -38,6 +38,8 @@ import replicatorg.app.exceptions.JobEndException;
 import replicatorg.app.exceptions.JobException;
 import replicatorg.app.exceptions.JobRewindException;
 import replicatorg.drivers.Driver;
+import replicatorg.drivers.MultiTool;
+import replicatorg.drivers.RetryException;
 import replicatorg.machine.model.Axis;
 import replicatorg.machine.model.ToolModel;
 import replicatorg.drivers.PenPlotter;
@@ -330,8 +332,9 @@ public class GCodeParser {
 
 	/**
 	 * Actually execute the GCode we just parsed.
+	 * @throws RetryException 
 	 */
-	public void execute() throws GCodeException {
+	public void execute() throws GCodeException, RetryException {
 		// TODO: is this the proper way?
 		// Set spindle speed?
 		// if (hasCode("S"))
@@ -351,9 +354,18 @@ public class GCodeParser {
 		}
 	}
 
-	private void executeMCodes() throws GCodeException {
+	private void executeMCodes() throws GCodeException, RetryException {
 		// find us an m code.
 		if (hasCode("M")) {
+			// If this machine handles multiple active toolheads, we always honor a T code
+			// as being a annotation to send the given command to the given toolheads.  Be
+			// aware that appending a T code to an M code will not necessarily generate a
+			// change tool request!  Use M6 for that.
+			// M6 was historically used to wait for toolheads to get up to temperature, so
+			// you may wish to avoid using M6.
+			if (hasCode("T") && driver instanceof MultiTool && ((MultiTool)driver).supportsSimultaneousTools()) {
+				driver.getMachine().selectTool((int) getCodeValue("T"));
+			}
 			switch ((int) getCodeValue("M")) {
 			// stop codes... handled by handleStops();
 			case 0:
@@ -378,13 +390,18 @@ public class GCodeParser {
 				driver.disableSpindle();
 				break;
 
-			// tool change
+			// tool change.
 			case 6:
-				if (hasCode("T"))
-					driver.requestToolChange((int) getCodeValue("T"));
-				else
-					throw new GCodeException(
-							"The T parameter is required for tool changes. (M6)");
+				int timeout = 65535;
+				if (hasCode("P")) {
+					timeout = (int)getCodeValue("P");
+				}
+				if (hasCode("T")) {
+					driver.requestToolChange((int) getCodeValue("T"), timeout);
+				}
+				else {
+					throw new GCodeException("The T parameter is required for tool changes. (M6)");
+				}
 				break;
 
 			// coolant A on (flood coolant)
@@ -528,9 +545,7 @@ public class GCodeParser {
 			// set max extruder speed, RPM
 			case 108:
 				if (hasCode("S"))
-					driver
-							.setMotorSpeedPWM((int) Math
-									.round(getCodeValue("S")));
+					driver.setMotorSpeedPWM((int)Math.round(getCodeValue("S")));
 				else if (hasCode("R"))
 					driver.setMotorRPM(getCodeValue("R"));
 				break;
@@ -661,7 +676,7 @@ public class GCodeParser {
 		}
 	}
 
-	private void executeGCodes() throws GCodeException {
+	private void executeGCodes() throws GCodeException, RetryException {
 		// start us off at our current position...
 		Point3d temp = driver.getCurrentPosition();
 
@@ -764,6 +779,18 @@ public class GCodeParser {
 			// dwell
 			case 4:
 				driver.delay((long) getCodeValue("P"));
+				break;
+			case 10:
+				if (hasCode("P")) {
+					int offsetSystemNum = ((int)getCodeValue("P"));
+					if (offsetSystemNum >= 1 && offsetSystemNum <= 6) {
+						if (hasCode("X")) driver.setOffsetX(offsetSystemNum, getCodeValue("X"));
+						if (hasCode("Y")) driver.setOffsetY(offsetSystemNum, getCodeValue("Y"));
+						if (hasCode("Z")) driver.setOffsetZ(offsetSystemNum, getCodeValue("Z"));
+					}
+				}
+				else 
+					Base.logger.warning("No coordinate system indicated use G10 Pn, where n is 0-6.");
 				break;
 
 			// plane selection codes
@@ -1000,7 +1027,7 @@ public class GCodeParser {
 	 * drillTarget = new Point3d(); drillRetract = 0.0; drillFeedrate = 0.0;
 	 * drillDwell = 0.0; drillPecksize = 0.0;
 	 */
-	private void drillingCycle(boolean speedPeck) {
+	private void drillingCycle(boolean speedPeck) throws RetryException {
 		// Retract to R position if Z is currently below this
 		Point3d current = driver.getCurrentPosition();
 		if (current.z < drillRetract) {
@@ -1064,7 +1091,7 @@ public class GCodeParser {
 		}
 	}
 
-	private void drawArc(Point3d center, Point3d endpoint, boolean clockwise) {
+	private void drawArc(Point3d center, Point3d endpoint, boolean clockwise) throws RetryException {
 		// System.out.println("Arc from " + current.toString() + " to " +
 		// endpoint.toString() + " with center " + center);
 
@@ -1145,10 +1172,7 @@ public class GCodeParser {
 		// not supported!
 	}
 
-	private void setTarget(Point3d p) {
-		// TODO: wow.
-		// This is deeply broken, but I'll leave it be for now and fix with a
-		// flag later.
+	private void setTarget(Point3d p) throws RetryException {
 		// If you really want two seperate moves, do it when you generate your
 		// toolpath.
 		// move z first

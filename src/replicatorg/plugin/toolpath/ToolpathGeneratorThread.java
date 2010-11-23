@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -18,6 +19,12 @@ import replicatorg.app.Base;
 import replicatorg.model.Build;
 import replicatorg.model.BuildCode;
 import replicatorg.plugin.toolpath.ToolpathGenerator.GeneratorListener;
+
+// For interpreting a GCode generator's output:
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 public class ToolpathGeneratorThread extends Thread {
 	private Frame parent;
@@ -32,7 +39,22 @@ public class ToolpathGeneratorThread extends Thread {
 	private class ProgressDialog extends JDialog implements ToolpathGenerator.GeneratorListener {
 		JLabel topLabel;
 		JLabel progressLabel;
+		JProgressBar subProgressBar;
+		JLabel totalProgressLabel;
+		JProgressBar totalProgressBar;
 		JButton doneButton;
+		int layerIndex;
+		int layerTotal;
+	    int currentProcessI = -1;
+		SkeinStep steps[] = {
+				new SkeinStep("Carve",13), 
+				new SkeinStep("Inset",27),
+				new SkeinStep("Fill",12),
+				new SkeinStep("Raft",36),
+				new SkeinStep("Clip",8),
+				new SkeinStep("Comb",4),
+				new SkeinStep("Oozebane",5),
+		};
 		
 		public ProgressDialog(Frame parent, Build build) {
 			super(parent);
@@ -41,9 +63,20 @@ public class ToolpathGeneratorThread extends Thread {
 			topLabel = new JLabel("Generating toolpath for "+build.getName(),icon,SwingConstants.LEFT);
 			icon.setImageObserver(topLabel);
 			progressLabel = new JLabel("Launching plugin...");
+			subProgressBar = new JProgressBar();
+			totalProgressLabel = new JLabel("Total progress:");
+			totalProgressBar = new JProgressBar();
+			subProgressBar.setValue(0);
+			subProgressBar.setStringPainted(false);
+			subProgressBar.setValue(0);
+			totalProgressBar.setStringPainted(false);
 			setLayout(new MigLayout());
 			add(topLabel,"wrap");
-			add(progressLabel,"wrap,wmin 400px");
+			add(new JLabel("Generator: Skeinforge"),"wrap");
+			add(progressLabel,"wrap,growx");
+			add(subProgressBar,"wrap,wmin 400px");
+			add(totalProgressLabel,"wrap,growx");
+			add(totalProgressBar,"wrap,wmin 400px");
 			doneButton = new JButton("Cancel");
 			doneButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -67,9 +100,166 @@ public class ToolpathGeneratorThread extends Thread {
 		}
 		
 		public void updateGenerator(final String message) {
+
 			SwingUtilities.invokeLater(new Runnable() {
+
 				public void run() {
-					progressLabel.setText(message);
+				    String newMessage = message;
+				    String processName = "";
+					boolean logIt = true;
+				    boolean showProgress = false;
+					int sub;
+
+					if(newMessage.startsWith(""+'\033'))
+					{
+				    	newMessage = newMessage.substring(4);
+				    }
+				    // skeinforge 33 (and up) format: \033[1AFill layer count 28 of 35...
+				    Pattern r = Pattern.compile(" of ([0-9]+)...");
+				    Matcher m = r.matcher(newMessage);
+				    if (m.find( )) {
+		    			logIt = false;
+			    		layerTotal = Integer.parseInt(m.group(1));
+				    }
+				    // skeinforge 33 (and up)
+				    r = Pattern.compile("([A-Za-z]+) layer count ([0-9]+)");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) {
+				    	processName = m.group(1);
+			    		layerIndex = Integer.parseInt(m.group(2));
+		    			logIt = false;
+			    		if(layerTotal > 0) {
+			    			subProgressBar.setIndeterminate(false);
+			    			showProgress = true;
+					    	newMessage = processName + " (layer " + layerIndex +" of "+ layerTotal +")";
+			    		} else {
+					    	newMessage = processName + " (layer " + layerIndex +")";
+			    			subProgressBar.setIndeterminate(true);
+			    		}
+				    }
+				    
+				    // Older skeinforge's
+					r = Pattern.compile("total Layer count is[^0-9]([0-9]+)[^0-9]");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) {
+			    		layerTotal = Integer.parseInt(m.group(1));
+				    }
+					r = Pattern.compile("^Filling layer.*[^0-9]([0-9]+)[^0-9]");
+				    m = r.matcher(newMessage);
+				    if (m.find( ))
+				    {
+				    	layerIndex = Integer.parseInt(m.group(1));
+				    	showProgress = true;
+				    	logIt = false;
+				    	sub = (int) (55*((double) layerIndex)/ layerTotal);
+				    	totalProgressBar.setValue(10 + sub);				    	
+				    }
+
+				    // THE ONE BELOW IS JUST FOR THE OLDER SKEINFORGE < 31!
+					r = Pattern.compile("Filling layer[^0-9]([0-9]+)/([0-9]+)[^0-9]");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) {
+			    		layerIndex = Integer.parseInt(m.group(1));
+			    		layerTotal = Integer.parseInt(m.group(2));
+			    		showProgress = true;
+			    		logIt = false;
+				    	sub = (int) (55*((double) layerIndex)/ layerTotal);
+				    	totalProgressBar.setValue(10 + sub);
+				    }				    
+				    				    
+					r = Pattern.compile("Slice to GCode.*layer ([0-9]+)[^0-9]");//Slice to GCode... layer %s.
+				    m = r.matcher(newMessage);
+				    if (m.find( ))
+				    {
+				    	layerIndex = Integer.parseInt(m.group(1));
+				    	showProgress = true;
+				    	logIt = false;
+				    	sub = (int) (2*((double) layerIndex)/ layerTotal);
+				    	totalProgressBar.setValue(2 + sub);				    	
+				    }
+				    /*
+					r = Pattern.compile("Insetting.*layer ([0-9]+)[^0-9]");
+				    m = r.matcher(newMessage);
+				    if (m.find( ))
+				    {
+				    	layerIndex = Integer.parseInt(m.group(1));
+				    	showProgress = true;
+				    	logIt = false;
+				    	sub = (int) (6*((double) layerIndex)/ layerTotal);
+				    	totalProgressBar.setValue(4 + sub);
+				    }
+				    */
+				    if(showProgress)
+				    {
+				    	String i = new Integer(layerIndex).toString();
+						String j = new Integer(layerTotal).toString();
+						double completion =  ((double) layerIndex/layerTotal);
+						NumberFormat nf = NumberFormat.getPercentInstance();
+						String perc = nf.format(completion);
+					    if((layerIndex>0) && (processName == ""))
+					    {
+					    	newMessage += " ("+j+" layers)";//
+					    }
+					    subProgressBar.setValue((int) (100*completion));
+					}
+				    /*
+					r = Pattern.compile("Fill procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( ))
+				    {
+				    	subProgressBar.setIndeterminate(true);
+				    	// http://download.oracle.com/javase/tutorial/uiswing/components/progress.html#indeterminate
+				    	totalProgressBar.setValue(65);
+				    }
+
+					r = Pattern.compile("Speed procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) totalProgressBar.setValue(70);
+					r = Pattern.compile("Temperature procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) totalProgressBar.setValue(79);
+					r = Pattern.compile("Raft procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) totalProgressBar.setValue(85);
+					r = Pattern.compile("Jitter procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) totalProgressBar.setValue(88);
+					r = Pattern.compile("Clip procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) totalProgressBar.setValue(99);
+					r = Pattern.compile("The extrusion fill density ratio");
+				    m = r.matcher(newMessage);
+				    if (m.find( )) totalProgressBar.setValue(99);
+					*/
+					r = Pattern.compile("(.*) procedure took");
+				    m = r.matcher(newMessage);
+				    if (m.find( ))
+				    {	
+					    for(int i=0;i<5;i++)
+					    {
+					    	if(steps[i].stepName.equals(m.group(1)))
+					    	{
+					    		currentProcessI = i;
+					    		subProgressBar.setIndeterminate(true);
+					    		//Base.logger.info("Step: "+steps[i].stepName+" = "+ steps[i].thisStepTime+" of "+steps[i].totalStepTime + " = "+steps[i].getStepPercentage(layerIndex,layerTotal)+"%");
+					    		
+					    	}
+					    }
+				    }
+				    if(currentProcessI >= 0)
+				    {
+				    	totalProgressBar.setValue((int) steps[currentProcessI].getStepPercentage(layerIndex,layerTotal));
+				    } else {
+				    	if(layerTotal > 0)
+				    	{
+				    	subProgressBar.setValue((int) (((double)layerIndex/layerTotal)*100));
+				    	subProgressBar.setIndeterminate(false);
+				    	}
+				    }
+				    if(logIt==true)
+				    	Base.logger.info(newMessage);
+				    	
+				    progressLabel.setText(newMessage);
 				}
 			});
 		}
@@ -136,5 +326,29 @@ public class ToolpathGeneratorThread extends Thread {
 				}
 			}
 		}
+	}
+}
+
+
+class SkeinStep {
+	public static int totalStepTime;
+	public String stepName;
+	public int thisStepTime; 
+	public int incrementalStepTime; 
+	
+	public SkeinStep(String stepName, int thisStepTime){
+		SkeinStep.totalStepTime += thisStepTime;
+		this.stepName = stepName;
+		this.thisStepTime = thisStepTime;
+		this.incrementalStepTime = SkeinStep.totalStepTime;
+	}
+	public int getStepPercentage(int layerIndex, int layerTotal)
+	{
+		int percentage = (int) ((double) (this.incrementalStepTime-this.thisStepTime)/totalStepTime*100);
+		if((layerTotal > 0)&&(layerTotal!=layerIndex)){
+			//Base.logger.info("layer "+layerIndex+"/"+layerTotal+" step "+this.thisStepTime+"/"+this.totalStepTime);
+			percentage += (int) (((double) this.thisStepTime/SkeinStep.totalStepTime)*((double)layerIndex/layerTotal)*100);
+		}
+		return percentage;
 	}
 }
