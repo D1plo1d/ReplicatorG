@@ -95,6 +95,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
+			<material profile ="SF31-cupcake-automated-platform-ABS" material="ABS" default="true" />
 		</driver>
 		<warmup>
 		</warmup>
@@ -156,6 +157,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
+			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" default="true" />
 		</driver>
 		<warmup>
 		</warmup>
@@ -363,6 +365,7 @@ M18
                         <!-- optional, defaults to 1.                          <databits>1</databits> -->
                         <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
                         <debuglevel>1</debuglevel>
+												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" default="true" />
                 </driver>
                 <warmup>
                 </warmup>
@@ -392,6 +395,7 @@ M108 S0
                         <!-- optional, defaults to 1.                          <databits>1</databits> -->
                         <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
                         <debuglevel>1</debuglevel>
+												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" default="true" />
                 </driver>
                 <warmup>
                 </warmup>
@@ -421,6 +425,7 @@ M108 S0
                         <!-- optional, defaults to 1.                          <databits>1</databits> -->
                         <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
                         <debuglevel>0</debuglevel>
+												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" default="true" />
                 </driver>
                 <warmup>
                 </warmup>
