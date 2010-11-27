@@ -23,6 +23,8 @@
 
 package replicatorg.app.tools;
 
+import java.util.HashMap;
+
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -109,5 +111,22 @@ public class XML
 		}
 
 		return null;
+	}
+	
+	static public HashMap<String, String> getAttributes(Node node)
+	{
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		if (node.hasAttributes())
+		{
+			NamedNodeMap nodeMap = node.getAttributes();
+			for (int i = 0; i < nodeMap.getLength(); i++)
+			{
+				Node attribute = nodeMap.item(i);
+				hashMap.put(attribute.getNodeName(), attribute.getNodeValue());
+			}
+		}
+
+		return hashMap;
+		
 	}
 }

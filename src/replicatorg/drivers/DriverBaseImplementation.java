@@ -70,7 +70,7 @@ public class DriverBaseImplementation implements Driver {
 	// what is our mode of positioning?
 	protected int positioningMode = 0;
 
-	private String defaultMaterialProfile;
+	private HashMap<String, String> defaultMaterialProfile;
 
 	static public int ABSOLUTE = 0;
 
@@ -102,7 +102,7 @@ public class DriverBaseImplementation implements Driver {
         {
         	//TODO: only works for a single material atm. In the future machines should be able 
         	//to have multiple material options.
-        	defaultMaterialProfile = XML.getAttributeValue(materialXml, "profile");
+        	defaultMaterialProfile = XML.getAttributes(materialXml);
         }
         else
         {
@@ -110,15 +110,18 @@ public class DriverBaseImplementation implements Driver {
         }
 	}
 
-	public HashMap<String, String> assignProfile(HashMap<String, String> material)
+	/**
+	 * Returns a hash map of this machine's material settings for the given material 
+	 * hash map. The resulting hash map contains both the inputed material's properties
+	 * and the machine specific GCode generator settings.
+	 */
+	@SuppressWarnings("unchecked")
+	public HashMap<String, String> getMaterialProfile(HashMap<String, String> material)
 	{
 		synchronized(material)
 		{
 			//TODO: this is a placeholder, for now we only have the default profile.
-			material.put("profile",defaultMaterialProfile);
-			//TODO: this is all still very hard coded.
-			material.put("useRaft", "false");
-			return material;
+			return (HashMap<String, String>) this.defaultMaterialProfile.clone();
 		}
 	}
 

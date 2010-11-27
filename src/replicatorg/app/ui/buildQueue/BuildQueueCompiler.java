@@ -56,7 +56,7 @@ public class BuildQueueCompiler {
 				//TODO: this is a test setup, eventually this will load a specific material.
 				HashMap<String, String> material = new HashMap<String, String>();
 				//Injecting machine-specific settings into the material
-				driver.assignProfile(material);
+				material = driver.getMaterialProfile(material);
 
 				generator.autoConfigure(material);
 				

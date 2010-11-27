@@ -56,7 +56,7 @@ public interface Driver {
 	 * @param material
 	 * @return
 	 */
-	public HashMap<String, String> assignProfile(HashMap<String, String> material);
+	public HashMap<String, String> getMaterialProfile(HashMap<String, String> material);
 
 	/**
 	 * parse a command. usually passes it through to the parser.
