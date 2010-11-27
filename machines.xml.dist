@@ -14,7 +14,7 @@
 		<clamps></clamps>
 		<driver name="null"> <!-- use a fake driver -->
 			<speedup>20</speedup> <!-- amount to speed up print process:  1 = realtime, 2 = 2x, 10 = 10x, etc. -->
-			<material profile ="root_configuration" default="true"/>
+			<material profile ="root_configuration" useRaft="true" default="true"></material>
 		</driver>
 	</machine>
 
@@ -35,7 +35,7 @@
 			<address>192.168.111.210</address>
 			<port>80</port>
 			<debuglevel>0</debuglevel>
-			<material profile ="root_configuration" default="true"/>
+			<material profile ="root_configuration" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -66,7 +66,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-cupcake-acrylic-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-cupcake-acrylic-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -95,7 +95,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-cupcake-automated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-cupcake-automated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -124,7 +124,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -157,7 +157,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -190,7 +190,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="root_configuration" default="true"/>
+			<material profile ="root_configuration" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -220,7 +220,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -249,7 +249,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -278,7 +278,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-thingomatic-automated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-thingomatic-automated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -307,7 +307,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-thingomatic-automated-platform-ABS" material="Candy" default="true" />
+			<material profile ="SF31-thingomatic-automated-platform-ABS" material="Candy" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -336,7 +336,7 @@ M18
 			<!-- optional, defaults to 1.                          <databits>1</databits> -->
 			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
 			<debuglevel>0</debuglevel>
-			<material profile ="SF31-thingomatic-automated-platform-ABS" material="ABS" default="true" />
+			<material profile ="SF31-thingomatic-automated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
 		</warmup>
@@ -365,7 +365,7 @@ M18
                         <!-- optional, defaults to 1.                          <databits>1</databits> -->
                         <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
                         <debuglevel>1</debuglevel>
-												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" default="true" />
+												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" useRaft="true" default="true"></material>
                 </driver>
                 <warmup>
                 </warmup>
@@ -395,7 +395,7 @@ M108 S0
                         <!-- optional, defaults to 1.                          <databits>1</databits> -->
                         <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
                         <debuglevel>1</debuglevel>
-												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" default="true" />
+												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" useRaft="true" default="true"></material>
                 </driver>
                 <warmup>
                 </warmup>
@@ -425,7 +425,7 @@ M108 S0
                         <!-- optional, defaults to 1.                          <databits>1</databits> -->
                         <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
                         <debuglevel>0</debuglevel>
-												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" default="true" />
+												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" useRaft="true" default="true"></material>
                 </driver>
                 <warmup>
                 </warmup>
