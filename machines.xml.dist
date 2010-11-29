@@ -4,9 +4,9 @@
 	<machine>
 		<name>3-Axis Simulator</name>
 		<geometry type="cartesian">
-			<axis id="x" length="100" maxfeedrate="1000" scale="11.4485" endstops="both"/>
-			<axis id="y" length="100" maxfeedrate="1000" scale="11.4485" endstops="both"/>
-			<axis id="z" length="100" maxfeedrate="100" scale="320" endstops="both"/>
+			<axis id="x" length="100" maxfeedrate="1000" stepspermm="11.4485" endstops="both"/>
+			<axis id="y" length="100" maxfeedrate="1000" stepspermm="11.4485" endstops="both"/>
+			<axis id="z" length="100" maxfeedrate="100" stepspermm="320" endstops="both"/>
 		</geometry>
 		<tools>
 			<tool name="Pinch Wheel Extruder v1.1" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true"/>
@@ -50,22 +50,17 @@ M18
 		<name>Cupcake CNC</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="11.767463" endstops="min"/> 
-			<axis id="y" length="100" maxfeedrate="5000" scale="11.767463" endstops="min"/>
-			<axis id="z" length="100" maxfeedrate="150" scale="320" endstops="min"/>
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="11.767463" endstops="min"/> 
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="11.767463" endstops="min"/>
+			<axis id="z" length="100" maxfeedrate="150" stepspermm="320" endstops="min"/>
 		</geometry>
 		<tools>
 			<tool name="Pinch Wheel Extruder v1.1" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-cupcake-acrylic-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -79,22 +74,17 @@ M18
 		<name>Cupcake CNC w/ automated build platform</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="11.767463"/> 
-			<axis id="y" length="100" maxfeedrate="5000" scale="11.767463"/>
-			<axis id="z" length="100" maxfeedrate="150" scale="320"/>
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="11.767463"/> 
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="11.767463"/>
+			<axis id="z" length="100" maxfeedrate="150" stepspermm="320"/>
 		</geometry>
 		<tools>
 			<tool name="Plastruder Mk5" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="false" valve="false" automatedplatform="true" heatedplatform="true" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-cupcake-automated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -108,22 +98,17 @@ M18
 		<name>Cupcake CNC w/ heated build platform</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="11.767463" endstops="min"/> 
-			<axis id="y" length="100" maxfeedrate="5000" scale="11.767463" endstops="min"/>
-			<axis id="z" length="96" maxfeedrate="150" scale="320" endstops="min"/>
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="11.767463" endstops="min"/> 
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="11.767463" endstops="min"/>
+			<axis id="z" length="96" maxfeedrate="150" stepspermm="320" endstops="min"/>
 		</geometry>
 		<tools>
 			<tool name="Pinch Wheel Extruder v1.1a" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" heatedplatform="true" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -140,9 +125,9 @@ M18
 		<name>Cupcake CNC w/ HBP, 2 toolheads</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="11.767463"/> 
-			<axis id="y" length="100" maxfeedrate="5000" scale="11.767463"/>
-			<axis id="z" length="96" maxfeedrate="150" scale="320"/>
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="11.767463"/> 
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="11.767463"/>
+			<axis id="z" length="96" maxfeedrate="150" stepspermm="320"/>
 		</geometry>
 		<tools>
 			<tool index="3" name="Build material" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" heatedplatform="true" collet="false" heater="true"/>
@@ -150,13 +135,8 @@ M18
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -171,9 +151,9 @@ M18
 		<!-- This configuration is for cupcakes outfitted with a frostruder. -->
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="11.767463" endstops="min"/> 
-			<axis id="y" length="100" maxfeedrate="5000" scale="11.767463" endstops="min"/>
-			<axis id="z" length="100" maxfeedrate="150" scale="320" endstops="min"/>
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="11.767463" endstops="min"/> 
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="11.767463" endstops="min"/>
+			<axis id="z" length="100" maxfeedrate="150" stepspermm="320" endstops="min"/>
 		</geometry>
 		<tools>
 			<tool name="Frostruder v1.0" type="extruder" material="abs" motor="false" floodcoolant="false" mistcoolant="false" fan="true" valve="true" collet="false" heater="false">
@@ -183,13 +163,8 @@ M18
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="root_configuration" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -204,22 +179,17 @@ M18
 		<name>EXPERIMENTAL - Cupcake CNC (with SMD v2.4)</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="47.069852" endstops="min"/>  <!-- eighth-step driver -->
-			<axis id="y" length="100" maxfeedrate="5000" scale="47.0698523" endstops="min"/>  <!-- eighth-step driver -->
-			<axis id="z" length="100" maxfeedrate="150" scale="160" endstops="min"/> <!-- full-step driver -->
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="47.069852" endstops="min"/>  <!-- eighth-step driver -->
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="47.0698523" endstops="min"/>  <!-- eighth-step driver -->
+			<axis id="z" length="100" maxfeedrate="150" stepspermm="160" endstops="min"/> <!-- full-step driver -->
 		</geometry>
 		<tools>
 			<tool name="Pinch Wheel Extruder v1.1" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -233,22 +203,17 @@ M18
 		<name>EXPERIMENTAL - Cupcake CNC (Driver 3.0 and Acme threads)</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="100" maxfeedrate="5000" scale="47.069852" endstops="min"/>  <!-- eighth-step driver -->
-			<axis id="y" length="100" maxfeedrate="5000" scale="47.0698523" endstops="min"/>  <!-- eighth-step driver -->
-			<axis id="z" length="100" maxfeedrate="200" scale="1308" endstops="min"/> <!-- eighth-step driver -->
+			<axis id="x" length="100" maxfeedrate="5000" stepspermm="47.069852" endstops="min"/>  <!-- eighth-step driver -->
+			<axis id="y" length="100" maxfeedrate="5000" stepspermm="47.0698523" endstops="min"/>  <!-- eighth-step driver -->
+			<axis id="z" length="100" maxfeedrate="200" stepspermm="1308" endstops="min"/> <!-- eighth-step driver -->
 		</geometry>
 		<tools>
 			<tool name="Pinch Wheel Extruder v1.1" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-cupcake-heated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -262,22 +227,42 @@ M18
 		<name>EXPERIMENTAL - Thingomatic - Gen 4</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="96" maxfeedrate="4000" scale="47.069852" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/8 step = 1/(10.82 * pi / 1600) -->
-			<axis id="y" length="108" maxfeedrate="4000" scale="47.069852" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/8 step = 1/(10.82 * pi / 1600) -->
-			<axis id="z" length="100" maxfeedrate="1000" scale="200" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/1600) -->
+			<axis id="x" length="96" maxfeedrate="4000" stepspermm="47.069852" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/8 step = 1/(10.82 * pi / 1600) -->
+			<axis id="y" length="108" maxfeedrate="4000" stepspermm="47.069852" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/8 step = 1/(10.82 * pi / 1600) -->
+			<axis id="z" length="100" maxfeedrate="1000" stepspermm="200" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/1600) -->
 		</geometry>
 		<tools>
 			<tool name="Plastruder MK5" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" heatedplatform="true" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
+		</driver>
+		<warmup>
+		</warmup>
+		<cooldown>
+(Turn off steppers after a build.)
+M18
+		</cooldown>
+	</machine>
+	<machine experimental="1">
+		<name>EXPERIMENTAL - Thingomatic - 5 axes</name>
+		<geometry type="cartesian">
+			<!-- different pulleys on X and Y axii -->
+			<axis id="x" length="96" maxfeedrate="4000" scale="47.069852" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/8 step = 1/(10.82 * pi / 1600) -->
+			<axis id="y" length="108" maxfeedrate="4000" scale="47.069852" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/8 step = 1/(10.82 * pi / 1600) -->
+			<axis id="z" length="100" maxfeedrate="1000" scale="200" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/1600) -->
+			<axis id="a" length="100" maxfeedrate="200" scale="200"/>
+			<axis id="b" length="100" maxfeedrate="200" scale="200"/>
+		</geometry>
+		<tools>
+			<tool name="Plastruder MK5" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" heatedplatform="true" collet="false" heater="true"/>
+		</tools>
+		<clamps></clamps>
+		<driver name="sanguino3g">
+			<!-- optional: <portname>COM1</portname> -->
+			<rate>38400</rate>
 			<material profile ="SF31-thingomatic-automated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -291,22 +276,17 @@ M18
 		<name>EXPERIMENTAL - Thingomatic - Candy</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="96" maxfeedrate="4000" scale="13.2629119" endstops="min"/>  <!-- Pulley dia: 9.60mm / 1/8 step = 1/(9.60 * pi / 400) -->
-			<axis id="y" length="108" maxfeedrate="4000" scale="13.2629119" endstops="min"/>  <!-- Pulley dia: 9.60mm / 1/8 step = 1/(9.60 * pi / 400) -->
-			<axis id="z" length="100" maxfeedrate="1000" scale="50" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/400) -->
+			<axis id="x" length="96" maxfeedrate="4000" stepspermm="13.2629119" endstops="min"/>  <!-- Pulley dia: 9.60mm / 1/8 step = 1/(9.60 * pi / 400) -->
+			<axis id="y" length="108" maxfeedrate="4000" stepspermm="13.2629119" endstops="min"/>  <!-- Pulley dia: 9.60mm / 1/8 step = 1/(9.60 * pi / 400) -->
+			<axis id="z" length="100" maxfeedrate="1000" stepspermm="50" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/400) -->
 		</geometry>
 		<tools>
 			<tool name="Plastruder MK5" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" heatedplatform="true" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-thingomatic-automated-platform-ABS" material="Candy" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -320,22 +300,17 @@ M18
 		<name>EXPERIMENTAL - Thingomatic Halfstep</name>
 		<geometry type="cartesian">
 			<!-- different pulleys on X and Y axii -->
-			<axis id="x" length="96" maxfeedrate="4000" scale="11.767463" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/4 step = 1/(10.82 * pi / 400) -->
-			<axis id="y" length="108" maxfeedrate="4000" scale="11.767463" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/4 step = 1/(10.82 * pi / 400) -->
-			<axis id="z" length="100" maxfeedrate="1000" scale="50" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/400) -->
+			<axis id="x" length="96" maxfeedrate="4000" stepspermm="11.767463" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/4 step = 1/(10.82 * pi / 400) -->
+			<axis id="y" length="108" maxfeedrate="4000" stepspermm="11.767463" endstops="min"/>  <!-- Pulley dia: 10.82mm / 1/4 step = 1/(10.82 * pi / 400) -->
+			<axis id="z" length="100" maxfeedrate="1000" stepspermm="50" endstops="min"/> <!-- TR-8x8 Z axis = 1/(8/400) -->
 		</geometry>
 		<tools>
 			<tool name="Plastruder MK5" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" heatedplatform="true" collet="false" heater="true"/>
 		</tools>
 		<clamps></clamps>
 		<driver name="sanguino3g">
-			<!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
-			<!-- required: we need 8 bit and 38400 baud. -->
+			<!-- optional: <portname>COM1</portname> -->
 			<rate>38400</rate>
-			<parity>8</parity>
-			<!-- optional, defaults to 1.                          <databits>1</databits> -->
-			<!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-			<debuglevel>0</debuglevel>
 			<material profile ="SF31-thingomatic-automated-platform-ABS" material="ABS" useRaft="true" default="true"></material>
 		</driver>
 		<warmup>
@@ -349,9 +324,9 @@ M18
                 <name>Mendel with Gen 3 Electronics (19200 Baud)</name>
                 <geometry type="cartesian">
                         <!-- different pulleys on X and Y axii -->
-                        <axis id="x" length="200" maxfeedrate="5000" scale="47.069852" endstops="min"/>  <!-- 16th-step driver -->
-                        <axis id="y" length="200" maxfeedrate="5000" scale="47.0698523" endstops="min"/>  <!-- 16th-step driver -->
-                        <axis id="z" length="140" maxfeedrate="30" scale="160" endstops="min"/> <!-- quarter-step driver -->
+                        <axis id="x" length="200" maxfeedrate="5000" stepspermm="47.069852" endstops="min"/>  <!-- 16th-step driver -->
+                        <axis id="y" length="200" maxfeedrate="5000" stepspermm="47.0698523" endstops="min"/>  <!-- 16th-step driver -->
+                        <axis id="z" length="140" maxfeedrate="30" stepspermm="160" endstops="min"/> <!-- quarter-step driver -->
                 </geometry>
                 <tools>
                         <tool name="Stepper-based extruder" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true" motor_steps="200" heatedplatform="true" />
@@ -359,12 +334,8 @@ M18
                 <clamps></clamps>
                 <help name="RepRap Help" url="http://www.reprap.org/ReplicatorG"></help>
                 <driver name="reprap5d">
-                        <!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
+                        <!-- optional: <portname>COM1</portname> -->
                         <rate>19200</rate>
-                        <parity>8</parity>
-                        <!-- optional, defaults to 1.                          <databits>1</databits> -->
-                        <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-                        <debuglevel>1</debuglevel>
 												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" useRaft="true" default="true"></material>
                 </driver>
                 <warmup>
@@ -379,9 +350,9 @@ M108 S0
                 <name>Mendel with Mega/RAMPS Electronics (57600 baud)</name>
                 <geometry type="cartesian">
                         <!-- different pulleys on X and Y axii -->
-                        <axis id="x" length="200" maxfeedrate="5000" scale="47.069852" endstops="min"/>  <!-- 16th-step driver -->
-                        <axis id="y" length="200" maxfeedrate="5000" scale="47.0698523" endstops="min"/>  <!-- 16th-step driver -->
-                        <axis id="z" length="140" maxfeedrate="150" scale="160" endstops="min"/> <!-- quarter-step driver -->
+                        <axis id="x" length="200" maxfeedrate="5000" stepspermm="47.069852" endstops="min"/>  <!-- 16th-step driver -->
+                        <axis id="y" length="200" maxfeedrate="5000" stepspermm="47.0698523" endstops="min"/>  <!-- 16th-step driver -->
+                        <axis id="z" length="140" maxfeedrate="150" stepspermm="160" endstops="min"/> <!-- quarter-step driver -->
                 </geometry>
                 <tools>
                         <tool name="Stepper-based extruder" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true" motor_steps="200" heatedplatform="true" />
@@ -389,12 +360,8 @@ M108 S0
                 <clamps></clamps>
                 <help name="RepRap Help" url="http://www.reprap.org/ReplicatorG"></help>
                 <driver name="reprap5d">
-                        <!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
+                        <!-- optional: <portname>COM1</portname> -->
                         <rate>57600</rate>
-                        <parity>8</parity>
-                        <!-- optional, defaults to 1.                          <databits>1</databits> -->
-                        <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-                        <debuglevel>1</debuglevel>
 												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" useRaft="true" default="true"></material>
                 </driver>
                 <warmup>
@@ -408,9 +375,9 @@ M108 S0
                 <name>Ultimaker v1.0 (5D firmware)</name>
                 <geometry type="cartesian">
                         <!-- different pulleys on X and Y axii -->
-                        <axis id="x" length="210" maxfeedrate="5000" scale="47.069852" endstops="min"/>  <!-- 16th-step driver -->
-                        <axis id="y" length="210" maxfeedrate="5000" scale="47.0698523" endstops="min"/>  <!-- 16th-step driver -->
-                        <axis id="z" length="210" maxfeedrate="150" scale="160" endstops="min"/> <!-- quarter-step driver -->
+                        <axis id="x" length="210" maxfeedrate="5000" stepspermm="47.069852" endstops="min"/>  <!-- 16th-step driver -->
+                        <axis id="y" length="210" maxfeedrate="5000" stepspermm="47.0698523" endstops="min"/>  <!-- 16th-step driver -->
+                        <axis id="z" length="210" maxfeedrate="150" stepspermm="160" endstops="min"/> <!-- quarter-step driver -->
                 </geometry>
                 <tools>
                         <tool name="Stepper-based pinch extruder" type="extruder" material="abs" motor="true" floodcoolant="false" mistcoolant="false" fan="true" valve="false" collet="false" heater="true" heatedplatform="true" motor_steps="200" />
@@ -419,12 +386,8 @@ M108 S0
                 <firmware url="http://firmware.ultimaker.com/latest" autoupgrade="false"></firmware>
                 <help name="Ultimaking Guide" url="http://www.ultimaker.com/guide"></help>
                 <driver name="reprap5d">
-                        <!-- optional, defaults to first serial port found.    <portname>COM1</portname> -->
+                        <!-- optional: <portname>COM1</portname> -->
                         <rate>57600</rate>
-                        <parity>8</parity>
-                        <!-- optional, defaults to 1.                          <databits>1</databits> -->
-                        <!-- optional, defaults to N.                          <stopbits>N</stopbits> -->
-                        <debuglevel>0</debuglevel>
 												<material profile ="SF31-mendel-wade-0.35mm" material="ABS" useRaft="true" default="true"></material>
                 </driver>
                 <warmup>
