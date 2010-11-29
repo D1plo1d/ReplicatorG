@@ -7,8 +7,10 @@ import java.util.HashMap;
 import replicatorg.app.Base;
 import replicatorg.app.MachineFactory;
 import replicatorg.app.ui.MainWindow;
+import replicatorg.app.ui.modeling.EditingModel;
 import replicatorg.drivers.Driver;
 import replicatorg.model.Build;
+import replicatorg.model.BuildModel;
 import replicatorg.plugin.toolpath.ToolpathGenerator;
 import replicatorg.plugin.toolpath.ToolpathGenerator.GeneratorListener;
 import replicatorg.plugin.toolpath.ToolpathGeneratorFactory;
@@ -59,6 +61,16 @@ public class BuildQueueCompiler {
 
 				//setting the stl model for gcode generation
 				Build build = new Build(mainWindow, buildItem.gcode.getAbsolutePath());
+
+				BuildModel buildModel = build.getModel();
+				
+				EditingModel editingModel = new EditingModel(buildModel,mainWindow);
+
+				//centering each file on the build platform
+				editingModel.getGroup();
+				editingModel.center();
+				buildModel.save();
+
 				generator.setModel(build.getModel());
 				
 				// starting the toolpath generator thread
