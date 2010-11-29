@@ -49,9 +49,6 @@ public class BuildQueueCompiler {
 			
 			ToolpathGenerator generator = ToolpathGeneratorFactory.createSelectedGenerator();
 			try {
-				Build build = new Build(mainWindow, buildItem.gcode.getAbsolutePath());
-				generator.setModel(build.getModel());
-
 				// loading the material
 				//TODO: this is a test setup, eventually this will load a specific material.
 				HashMap<String, String> material = new HashMap<String, String>();
@@ -59,6 +56,10 @@ public class BuildQueueCompiler {
 				material = driver.getMaterialProfile(material);
 
 				generator.autoConfigure(material);
+
+				//setting the stl model for gcode generation
+				Build build = new Build(mainWindow, buildItem.gcode.getAbsolutePath());
+				generator.setModel(build.getModel());
 				
 				// starting the toolpath generator thread
 				ToolpathGeneratorThread thread = new ToolpathGeneratorThread(mainWindow, generator, build);

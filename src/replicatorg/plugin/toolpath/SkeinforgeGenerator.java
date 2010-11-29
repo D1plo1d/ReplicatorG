@@ -138,11 +138,14 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 	protected class SkeinforgeBooleanPreference implements SkeinforgePreference {
 		private boolean isSet;
 		private JCheckBox component;
+		/** The material property corresponding to this preference in machines.xml*/
+		private String materialProperty;
 		private List<SkeinforgeOption> trueOptions = new LinkedList<SkeinforgeOption>();
 		private List<SkeinforgeOption> falseOptions = new LinkedList<SkeinforgeOption>();
 		
-		public SkeinforgeBooleanPreference(String name, final String preferenceName, boolean defaultState, String toolTip) {
+		public SkeinforgeBooleanPreference(String name, String materialProperty, final String preferenceName, boolean defaultState, String toolTip) {
 			isSet = defaultState;
+			this.materialProperty = materialProperty;
 			if (preferenceName != null) {
 				isSet = Base.preferences.getBoolean(preferenceName, defaultState);
 			}
@@ -170,8 +173,15 @@ public abstract class SkeinforgeGenerator extends ToolpathGenerator {
 			falseOptions.add(new SkeinforgeOption(o.module,o.preference,negated));
 		}
 
+		private boolean getValue()
+		{
+			if (material!=null && material.containsKey(this.materialProperty))
+				return Boolean.parseBoolean(material.get(this.materialProperty));
+			return isSet;
+		}
+		
 		public List<SkeinforgeOption> getOptions() {
-			return isSet?trueOptions:falseOptions;
+			return getValue()?trueOptions:falseOptions;
 		}
 	}
 	

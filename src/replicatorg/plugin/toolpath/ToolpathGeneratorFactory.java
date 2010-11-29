@@ -44,6 +44,7 @@ public class ToolpathGeneratorFactory {
 	}
 	static private Vector<ToolpathGeneratorDescriptor> buildGeneratorList() {
 		Vector<ToolpathGeneratorDescriptor> list = new Vector<ToolpathGeneratorDescriptor>();
+
 		class Skeinforge6 extends SkeinforgeGenerator {
 			public File getDefaultSkeinforgeDir() {
 		    	return Base.getApplicationFile("skein_engines/skeinforge-0006");
@@ -66,26 +67,16 @@ public class ToolpathGeneratorFactory {
 			}
 			public List<SkeinforgePreference> getPreferences() {
 				List <SkeinforgePreference> prefs = new LinkedList<SkeinforgePreference>();
-				SkeinforgeBooleanPreference raftPref = 			
-					new SkeinforgeBooleanPreference("Use raft",
+
+				SkeinforgeBooleanPreference raftPref = 
+					new SkeinforgeBooleanPreference("Use raft", "useRaft",
 						"replicatorg.skeinforge.useRaft", true,
 						"If this option is checked, skeinforge will lay down a rectangular 'raft' of plastic before starting the build.  "
 						+ "Rafts increase the build size slightly, so you should avoid using a raft if your build goes to the edge of the platform.");
-				boolean useRaft = true;
-				if (material != null)
-				{
-					if (material.containsKey("useRaft"))
-					{
-						useRaft = Boolean.parseBoolean(material.get("useRaft"));
-					}
-					else
-					{
-						Base.logger.warning("No useRaft setting found in material, defaulting to true");
-						useRaft = false;
-					}
-				}
-				raftPref.addNegateableOption(new SkeinforgeOption("raft.csv", "Activate Raft", useRaft?"true":"false"));
+
+				raftPref.addNegateableOption(new SkeinforgeOption("raft.csv", "Activate Raft", "true"));
 				prefs.add(raftPref);
+
 				return prefs;
 			}
 		};
@@ -99,7 +90,7 @@ public class ToolpathGeneratorFactory {
 			public List<SkeinforgePreference> getPreferences() {
 				List <SkeinforgePreference> prefs = super.getPreferences();
 				SkeinforgeBooleanPreference supportPref =
-					new SkeinforgeBooleanPreference("Use support material",
+					new SkeinforgeBooleanPreference("Use support material", "useSupport",
 							"replicatorg.skeinforge.useSupport", false,
 							"If this option is checked, skeinforge will attempt to support large overhangs by laying down a support "+
 							"structure that you can later remove.");
