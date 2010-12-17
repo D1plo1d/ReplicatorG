@@ -138,7 +138,6 @@ import replicatorg.machine.MachineProgressEvent;
 import replicatorg.machine.MachineState;
 import replicatorg.machine.MachineStateChangeEvent;
 import replicatorg.machine.MachineToolStatusEvent;
-import replicatorg.machine.MachineState.State;
 import replicatorg.model.Build;
 import replicatorg.model.BuildCode;
 import replicatorg.model.BuildElement;
@@ -157,7 +156,6 @@ import com.apple.mrj.MRJOpenDocumentHandler;
 import com.apple.mrj.MRJPrefsHandler;
 import com.apple.mrj.MRJQuitHandler;
 
-@SuppressWarnings("deprecation")
 public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandler,
 		MRJPrefsHandler, MRJOpenDocumentHandler,
 		MachineListener, ChangeListener,
@@ -176,9 +174,6 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	final static String BUILD_QUEUE_TAB_KEY = BuildElement.Type.QUEUE.name();
 	// p5 icon for the window
 	Image icon;
-
-	// our machines.xml document.
-	public Document dom;
 
 	MachineController machine;
 
@@ -917,7 +912,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 			// load it and set it.
 			Thread t = new Thread() {
 				public void run() {
-					loadMachine(name, machine.getMachineState().isConnected());
+					loadMachine(name, (machine != null) && machine.getMachineState().isConnected());
 				}
 			};
 			t.start();
@@ -2420,20 +2415,27 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	}
 
 	protected void setMachine(MachineController machine) {
-		if (this.machine != null) {
-			this.machine.dispose();
+		if (this.machine != machine) {
+			if (this.machine != null) {
+				this.machine.dispose();
+			}
+			this.machine = machine;
+			if (machine != null) {
+				machine.setCodeSource(new JEditTextAreaSource(textarea));
+				machine.setMainWindow(this);
+				machine.addMachineStateListener(this);
+				machine.addMachineStateListener(machineStatusPanel);
+				machine.addMachineStateListener(buttons);
+			}
 		}
-		this.machine = machine;
-		if (machine != null) {
-			machine.setCodeSource(new JEditTextAreaSource(textarea));
-			machine.setMainWindow(this);
-			machine.addMachineStateListener(this);
-			machine.addMachineStateListener(machineStatusPanel);
-			machine.addMachineStateListener(buttons);
+		if (machine == null) {
+			// Buttons will need an explicit null state notification
+			buttons.machineStateChanged(new MachineStateChangeEvent(null, new MachineState()));
 		}
 		machineStatusPanel.setMachine(this.machine);
 		// TODO: PreviewPanel: update with new machine
 	}
+	
 	public MachineController getMachine(){
 		return this.machine;
 	}
@@ -2445,6 +2447,7 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 	 */
 	public void loadMachine(String name, Boolean connect) {
 		setMachine(Base.loadMachine(name));
+		if (getMachine() == null) return; // abort on no selected machine
 		reloadSerialMenu();
 		
 		if(previewPanel != null)
@@ -2462,29 +2465,30 @@ public class MainWindow extends JFrame implements MRJAboutHandler, MRJQuitHandle
 
 		if (machine.driver instanceof UsesSerial) {
 			UsesSerial us = (UsesSerial)machine.driver;
+			String targetPort;
+			
 			if (Base.preferences.getBoolean("serial.use_machines",true) &&
 					us.isExplicit()) {
-				try {
-					us.setSerial(new Serial(us.getPortName(),us));
-					machine.connect();
-				} catch (SerialException e) {
-					Base.logger.severe("Could not use/find serial port specified in machines.xml ("+us.getPortName()+").");
-					return;
-				}
+				targetPort = us.getPortName();
 			} else {
-				String lastPort = Base.preferences.get("serial.last_selected", null);
-				if (lastPort != null) {
-					try {
-						us.setSerial(new Serial(lastPort,us));
+				targetPort = Base.preferences.get("serial.last_selected", null);
+			}
+			if (targetPort != null) {
+				try {
+					synchronized(us) {
+						Serial current = us.getSerial();
+						System.err.println("Current serial port: "+((current==null)?"null":current.getName())+", specified "+targetPort);
+						if (current == null || !current.getName().equals(targetPort)) {
+							us.setSerial(new Serial(targetPort,us));
+						}
 						machine.connect();
-					} catch (SerialException e) {
-						String msg = e.getMessage();
-						if (msg == null) { msg = "."; }
-						else { msg = ": "+msg; }
-						Base.logger.log(Level.WARNING,
-								"Could not use most recently selected serial port ("+lastPort+")"+ msg);
-						return;
 					}
+				} catch (SerialException e) {
+					String msg = e.getMessage();
+					if (msg == null) { msg = "."; }
+					else { msg = ": "+msg; }
+					Base.logger.log(Level.WARNING,
+							"Could not use specified serial port ("+targetPort+")"+ msg);
 				}
 			}
 		}

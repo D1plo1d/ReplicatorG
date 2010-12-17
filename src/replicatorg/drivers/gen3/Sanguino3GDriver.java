@@ -403,9 +403,11 @@ public class Sanguino3GDriver extends SerialDriver
 		slavepr = runQuery(slavepb.getPacket(),1);
 		if (!slavepr.isEmpty()) {
 			byte[] payload = slavepr.getPayload();
-			byte[] subarray = new byte[payload.length-1];
-			System.arraycopy(payload, 1, subarray, 0, subarray.length);
-			buildname = " (" + new String(subarray) + ")";
+			if (payload.length > 0) {
+				byte[] subarray = new byte[payload.length-1];
+				System.arraycopy(payload, 1, subarray, 0, subarray.length);
+				buildname = " (" + new String(subarray) + ")";
+			}
 		}
 		
 		Base.logger.log(Level.FINE,"Reported slave board version: "
@@ -940,6 +942,7 @@ public class Sanguino3GDriver extends SerialDriver
 		pb.add8(ToolCommandCode.GET_TEMP.getCode());
 		PacketResponse pr = runQuery(pb.getPacket());
 		if (pr.isEmpty()) return;
+		// FIXME: First, check that the result code is OK. We occationally receive RC_DOWNSTREAM_TIMEOUT codes here. kintel 20101207.
 		int temp = pr.get16();
 		machine.currentTool().setCurrentTemperature(temp);
 
@@ -1192,7 +1195,7 @@ public class Sanguino3GDriver extends SerialDriver
 		Base.logger.warning("Stop.");
 		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.ABORT.getCode());
 		Thread.interrupted(); // Clear interrupted status
-		PacketResponse pr = runQuery(pb.getPacket());
+		runQuery(pb.getPacket());
 		// invalidate position, force reconciliation.
 		invalidatePosition();
 	}
@@ -1215,7 +1218,7 @@ public class Sanguino3GDriver extends SerialDriver
 			// WDT reset introduced in version 1.4 firmware
 			PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.RESET.getCode());
 			Thread.interrupted(); // Clear interrupted status
-			PacketResponse pr = runQuery(pb.getPacket());
+			runQuery(pb.getPacket());
 			// invalidate position, force reconciliation.
 			invalidatePosition();
 		}

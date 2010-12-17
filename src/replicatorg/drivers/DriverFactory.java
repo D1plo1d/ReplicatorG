@@ -93,6 +93,8 @@ public class DriverFactory {
 			return loadClass("replicatorg.drivers.cncOverNet.CncOverNetDriver", xml);
 		if (driverName.equals("reprap5d"))
 			return loadClass("replicatorg.drivers.reprap.RepRap5DDriver", xml);
+		if (driverName.equals("simpleReprap5d"))
+			return loadClass("replicatorg.drivers.reprap.SimpleRepRap5DDriver", xml);
 		if (driverName.equals("null"))
 			return loadClass("replicatorg.drivers.NullDriver", xml);
 		else {

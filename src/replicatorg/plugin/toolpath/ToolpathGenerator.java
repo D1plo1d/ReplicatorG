@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import replicatorg.app.Base;
 import replicatorg.model.BuildCode;
 import replicatorg.model.BuildModel;
 
